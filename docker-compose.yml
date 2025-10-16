@@ -1,0 +1,9 @@
+services:
+  php:
+    build: .
+    image: eudr-api-client-php:latest
+    working_dir: /app
+    volumes:
+      - ./:/app
+    # Default command shows PHP version; override on the CLI for interactive runs
+    command: ["php", "-v"]

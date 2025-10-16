@@ -1,0 +1,22 @@
+{
+  "name": "gschurgast/eudr-api-client",
+  "description": "Minimal EUDR SOAP client utilities and functional test",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1",
+    "ext-soap": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Soap\\": "src/Soap/",
+      "src\\": "src/"
+    }
+  },
+  "scripts": {
+    "demo:migration": "php tests/migration_demo.php"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
