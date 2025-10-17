@@ -54,7 +54,6 @@ foreach (Mode::cases() as $mode) {
         try {
             // Use generic authenticated call helper
             $response = $client->$op($env, $payload);
-            var_dump($payload);
             $sections[] = [
                 'label' => $labelOp,
                 'ok' => true,

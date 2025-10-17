@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace src\Services;
 
+use DOMDocument;
+use DOMXPath;
 use SoapClient;
 use SoapHeader;
 use SoapVar;
@@ -62,59 +64,39 @@ abstract class BaseSoapService
      */
     private function createWsSecurityHeader(Environment $environment): SoapHeader
     {
-        $nonceBytes = random_bytes(16);
-        $nonceBase64 = base64_encode($nonceBytes);
+        // Build a minimal SOAP envelope header via WSE-PHP to generate WS-Security elements
+        $doc      = new DOMDocument('1.0', 'UTF-8');
+        $envelope = $doc->createElementNS('http://schemas.xmlsoap.org/soap/envelope/', 'soapenv:Envelope');
+        $header   = $doc->createElementNS('http://schemas.xmlsoap.org/soap/envelope/', 'soapenv:Header');
+        $body     = $doc->createElementNS('http://schemas.xmlsoap.org/soap/envelope/', 'soapenv:Body');
+        $envelope->appendChild($header);
+        $envelope->appendChild($body);
+        $doc->appendChild($envelope);
 
-        $dt = new \DateTime('now', new \DateTimeZone('UTC'));
-        $created = $dt->format('Y-m-d\TH:i:s\Z');
+        $wsse = new WSSESoap($doc, false);
+        // Add Timestamp and UsernameToken (PasswordDigest=true)
+        $wsse->addTimestamp(60);
+        $wsse->addUserToken($this->username, $this->authKey, true);
 
-        $digestRaw = sha1($nonceBytes . $created . $this->authKey, true);
-        $passwordDigest = base64_encode($digestRaw);
+        // Extract the generated wsse:Security node as XML
+        $xpath = new DOMXPath($doc);
+        $xpath->registerNamespace('wsse', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd');
+        $securityNode = $xpath->query('//wsse:Security')->item(0);
+        $xmlSecurity  = $securityNode ? $doc->saveXML($securityNode) : '';
 
-        $maxSeconds = 60;
-        $expires = (clone $dt)->add(new \DateInterval('PT' . $maxSeconds . 'S'))
-            ->format('Y-m-d\TH:i:s\Z');
-
-        // IDs uniques
-        $timestampId = 'TS-' . bin2hex(random_bytes(8));
-        $usernameTokenId = 'UsernameToken-' . bin2hex(random_bytes(8));
-
-        // Construire le XML du wsse:Security sans WebServiceClientId
-        $xmlSecurity = '
-<wsse:Security
-    xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
-    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-  <wsu:Timestamp wsu:Id="' . $timestampId . '">
-    <wsu:Created>' . $created . '</wsu:Created>
-    <wsu:Expires>' . $expires . '</wsu:Expires>
-  </wsu:Timestamp>
-  <wsse:UsernameToken wsu:Id="' . $usernameTokenId . '">
-    <wsse:Username>' . htmlspecialchars($this->username, ENT_XML1) . '</wsse:Username>
-    <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">'
-            . $passwordDigest . '</wsse:Password>
-    <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">'
-            . $nonceBase64 . '</wsse:Nonce>
-    <wsu:Created>' . $created . '</wsu:Created>
-  </wsse:UsernameToken>
-</wsse:Security>';
-
-        // Puis le WebServiceClientId hors du bloc Security
-        $clientId = $environment->getWebServiceClientId();
+        // Add the WebServiceClientId header (outside of wsse:Security)
+        $clientId    = $environment->getWebServiceClientId();
         $xmlClientId = '<v4:WebServiceClientId xmlns:v4="http://ec.europa.eu/sanco/tracesnt/base/v4">'
             . htmlspecialchars($clientId, ENT_XML1) . '</v4:WebServiceClientId>';
 
-        // Combiner les deux morceaux
         $fullXmlHeader = $xmlSecurity . $xmlClientId;
 
-        $soapVar = new SoapVar($fullXmlHeader, XSD_ANYXML);
-        $header = new SoapHeader(
+        return new SoapHeader(
             'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
             'Security',
-            $soapVar,
+            new SoapVar($fullXmlHeader, XSD_ANYXML),
             true
         );
-
-        return $header;
     }
 
 
