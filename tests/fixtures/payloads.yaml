@@ -1,0 +1,36 @@
+echo:
+  testEcho:
+    query: "hello from demo"
+
+#retrieval:
+#  getDdsInfo:
+#    query:
+#      uuid: "00000000-0000-0000-0000-000000000000"
+#  getDdsInfoByInternalReferenceNumber:
+#    internalReferenceNumber: "TEST-REF-123"
+#  getStatementByIdentifiers:
+#    query:
+#      operatorEori: "EO-TEST"
+#      operatorCountryIsoCode: "FR"
+#      productCpcCodes: []
+#  getReferencedDds:
+#    query:
+#      uuid: "00000000-0000-0000-0000-000000000000"
+#
+#submission:
+#  submitDds:
+#    query:
+#      externalReferenceNumber: "TEST-EXT-REF"
+#      dds:
+#        operatorEori: "EO-TEST"
+#        operatorCountryIsoCode: "FR"
+#        productCpcCode: "0123"
+#      geolocations: []
+#  amendDds:
+#    query:
+#      uuid: "00000000-0000-0000-0000-000000000000"
+#      changes: []
+#  retractDds:
+#    query:
+#      uuid: "00000000-0000-0000-0000-000000000000"
+#      reason: "demo"

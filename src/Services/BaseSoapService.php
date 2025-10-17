@@ -26,7 +26,6 @@ abstract class BaseSoapService
 
         $wsdl = $environment->getUrl($mode->geturl());
 
-
         $defaults = [
             'trace'      => true,
             'exceptions' => true,
@@ -42,7 +41,7 @@ abstract class BaseSoapService
                     'allow_self_signed' => true,
                 ],
                 'http' => [
-                    'user_agent' => 'EUDR-PHP-SoapClient/1.0 (+https://github.com/gschurgast/eudr-api-client)',
+                    'user_agent' => 'EUDR-PHP-SoapClient/1.0 (https://github.com/gschurgast/eudr-api-client)',
                 ],
             ]);
             $defaults['stream_context'] = $ctx;

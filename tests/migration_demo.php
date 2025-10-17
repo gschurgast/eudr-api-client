@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// Demo: PHP equivalents of Node services usage (updated for new service API)
+// Optimized demo: iterate over Mode enum, list functions, and attempt calls using YAML fixtures
 // Run via Docker + Composer:
 //   docker compose run --rm php composer install --no-interaction --prefer-dist
 //   docker compose run --rm -e ENV=acceptance php composer run demo:migration
@@ -11,69 +11,60 @@ $root = dirname(__DIR__);
 require_once $root . '/vendor/autoload.php';
 
 use src\Enum\Environment;
-use src\Services\EudrEchoClient;
-use src\Services\EudrRetrievalClientV2;
-use src\Services\EudrSubmissionClientV2;
+use src\Enum\Mode;
+use Symfony\Component\Yaml\Yaml;
 
-$envVar = getenv('ENV') ?: null;
-$environment = null;
+// Load fixtures
+$fixturesPath = $root . '/tests/fixtures/payloads.yaml';
+$fixtures = file_exists($fixturesPath) ? (Yaml::parseFile($fixturesPath) ?? []) : [];
 
-if ($envVar) {
-    $environment = match (strtolower((string)$envVar)) {
-        'production', 'prod' => Environment::PRODUCTION,
-        default => Environment::ACCEPTANCE,
-    };
-}
 
-$options = [
-    'username' => getenv('EUDR_USERNAME') ?: null,
-    'password' => getenv('EUDR_PASSWORD') ?: 'null',
-];
-if ($environment) {
-    $options['environment'] = $environment;
-}
 
-$effectiveEnv = $environment ?? Environment::ACCEPTANCE;
 $sections = [];
 
-// Echo service: list functions and perform a simple connection test (non-production only)
-if ($effectiveEnv !== Environment::PRODUCTION) {
+$line     = str_repeat('=', 70);
+$env  = Environment::ACCEPTANCE;
+$clientId = $env->getWebServiceClientId();
+printf("%s\nEUDR PHP Migration Demo (ENV=%s, CLIENT_ID=%s)\n%s\n\n", $line, $env->name, $env->getWebServiceClientId(), $line);
+
+foreach (Mode::cases() as $mode) {
+
+    $client = $mode->getWebServiceClient();
+
+    // List functions (unauthenticated)
     try {
-        $echo = new EudrEchoClient();
-        $sections[] = ['label' => 'EudrEchoService', 'ok' => true, 'functions' => $echo->listFunctions($effectiveEnv)];
-
-        // Connection test: try invoking testEcho with a minimal payload
-        try {
-            $response = $echo->testEcho($effectiveEnv, ['query' => 'ma teub']);
-            $sections[] = ['label' => 'EudrEchoService connection test', 'ok' => true, 'response' => is_scalar($response) ? (string)$response : json_encode($response)];
-        } catch (Throwable $ce) {
-            $sections[] = ['label' => 'EudrEchoService connection test', 'ok' => false, 'error' => $ce->getMessage()];
-        }
-    } catch (Throwable $e) {
-        $sections[] = ['label' => 'EudrEchoService', 'ok' => false, 'error' => $e->getMessage()];
+        $functions = $client->listFunctions($env) ?? [];
+        $sections[] = ['label' => $mode->name, 'ok' => true, 'functions' => $functions];
+    } catch (\Throwable $e) {
+        $sections[] = ['label' => $mode->name, 'ok' => false, 'error' => $e->getMessage()];
+        // If we can’t read functions, skip calls
+        continue;
     }
-} else {
-    $sections[] = ['label' => 'EudrEchoService', 'ok' => false, 'error' => 'Skipped: Echo forbidden on PRODUCTION'];
-}
 
-try {
-    $retrieval = new EudrRetrievalClientV2();
-    $sections[] = ['label' => 'EUDRRetrievalServiceV2', 'ok' => true, 'functions' => $retrieval->listFunctions($effectiveEnv)];
-} catch (Throwable $e) {
-    $sections[] = ['label' => 'EUDRRetrievalServiceV2', 'ok' => false, 'error' => $e->getMessage()];
-}
+    // Attempt calling each available fixture payload (iterate over fixtures instead of WSDL functions)
+    $modeFixtures = $fixtures[$mode->value] ?? [];
 
-try {
-    $submission = new EudrSubmissionClientV2();
-    $sections[] = ['label' => 'EUDRSubmissionServiceV2', 'ok' => true, 'functions' => $submission->listFunctions($effectiveEnv)];
-} catch (Throwable $e) {
-    $sections[] = ['label' => 'EUDRSubmissionServiceV2', 'ok' => false, 'error' => $e->getMessage()];
-}
+    if (empty($modeFixtures)) {
+        $sections[] = ['label' => $mode->name . ' fixtures', 'ok' => false, 'error' => 'No fixtures defined for mode, skipped'];
+        continue;
+    }
 
-$line = str_repeat('=', 70);
-$envName = $effectiveEnv->name;
-$clientId = $effectiveEnv->getWebServiceClientId();
-printf("%s\nEUDR PHP Migration Demo (ENV=%s, CLIENT_ID=%s)\n%s\n\n", $line, $envName, $clientId, $line);
+    foreach ($modeFixtures as $op => $payload) {
+        $labelOp = $mode->name . '::' . $op;
+        try {
+            // Use generic authenticated call helper
+            $response = $client->$op($env, $payload);
+            var_dump($payload);
+            $sections[] = [
+                'label' => $labelOp,
+                'ok' => true,
+                'response' => is_scalar($response) ? (string)$response : json_encode($response),
+            ];
+        } catch (\Throwable $e) {
+            $sections[] = ['label' => $labelOp, 'ok' => false, 'error' => $e->getMessage()];
+        }
+    }
+}
 
 foreach ($sections as $section) {
     printf("-- %s --\n", $section['label']);
