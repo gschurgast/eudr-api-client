@@ -11,6 +11,7 @@ use SoapHeader;
 use SoapVar;
 use src\Enum\Environment;
 use src\Enum\Mode;
+use RobRichards\WsePhp\WSSESoap;
 
 abstract class BaseSoapService
 {
