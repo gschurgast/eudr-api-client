@@ -29,3 +29,6 @@ phpstan:
 
 phpcsfixer:
 	@$(COMPOSER) dev:phpcsfixer
+
+test:
+	@$(COMPOSER) test:functional

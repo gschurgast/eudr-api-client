@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace src\Services;
 
-use src\Enum\Mode;
+use src\Enum\ModeEnum;
 use src\Request\TestEchoRequest;
 
 class EudrEchoClient extends BaseSoapService
@@ -15,8 +15,8 @@ class EudrEchoClient extends BaseSoapService
         return $this->buildSoapClient()->__soapCall('testEcho', [$request]);
     }
 
-    protected function getMode(): Mode
+    protected function getMode(): ModeEnum
     {
-        return Mode::ECHO;
+        return ModeEnum::ECHO;
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace src\Services;
 
-use src\Enum\Mode;
+use src\Enum\ModeEnum;
 use src\Request\GetDdsInfoByInternalReferenceNumberRequest;
 use src\Request\GetDdsInfoRequest;
 use src\Request\GetReferenceDdsRequest;
@@ -32,8 +32,8 @@ class EudrRetrievalClient extends BaseSoapService
         return $this->buildSoapClient()->__soapCall('getReferencedDds', [$request]);
     }
 
-    protected function getMode(): Mode
+    protected function getMode(): ModeEnum
     {
-        return Mode::RETRIEVAL;
+        return ModeEnum::RETRIEVAL;
     }
 }

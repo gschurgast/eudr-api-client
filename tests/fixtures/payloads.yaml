@@ -50,13 +50,13 @@ submission:
         phone: "01 23 45 67 89"
       geoLocationConfidential: false
   amendDds:
-    ddsIdentifier: "9f0ebccd-5fc0-4321-b93a-c732efda7a46"
+    ddsIdentifier: "ec038b3c-bb2b-4965-8341-3765213af912"
     statement:
       internalReferenceNumber: "DLE20/362"
       activityType: "IMPORT"
       countryOfActivity: 'FR'
       borderCrossCountry: 'DE'
-      comment: "Minimal test scenario"
+      comment: "Test Amend scenario"
       commodities:
         - descriptors:
             descriptionOfGoods: "Test wood products"
@@ -97,7 +97,7 @@ submission:
       geoLocationConfidential: false
   retractDds:
     ddsIdentifier: "9f0ebccd-5fc0-4321-b93a-c732efda7a46"
-    reason: "demo"
+    reason: "test retraction"
 
 retrieval:
   getDdsInfo:

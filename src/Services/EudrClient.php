@@ -2,31 +2,31 @@
 
 namespace src\Services;
 
-use src\Enum\Environment;
-use src\Enum\Mode;
+use src\Enum\EnvironmentEnum;
+use src\Enum\ModeEnum;
 
 class EudrClient
 {
     protected string $username;
     protected string $password;
-    protected Environment $environment = Environment::ACCEPTANCE;
+    protected EnvironmentEnum $environment = EnvironmentEnum::ACCEPTANCE;
 
     public function __construct(
         string $username,
         string $password,
-        Environment $environment,
+        EnvironmentEnum $environment,
     ) {
         $this->username = $username;
         $this->password = $password;
         $this->environment = $environment;
     }
 
-    public function getClient(Mode $mode): BaseSoapService
+    public function getClient(ModeEnum $mode): BaseSoapService
     {
         $client = match ($mode) {
-            Mode::ECHO => new EudrEchoClient(),
-            Mode::SUBMISSION => new EudrSubmissionClient(),
-            Mode::RETRIEVAL => new EudrRetrievalClient(),
+            ModeEnum::ECHO => new EudrEchoClient(),
+            ModeEnum::SUBMISSION => new EudrSubmissionClient(),
+            ModeEnum::RETRIEVAL => new EudrRetrievalClient(),
         };
 
         $client->setEnvironment($this->environment);

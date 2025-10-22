@@ -1,31 +1,36 @@
 {
-  "name": "gschurgast/eudr-api-client",
-  "description": "Minimal EUDR SOAP client utilities and functional test",
-  "type": "library",
-  "license": "MIT",
-  "require": {
-    "php": ">=8.1",
-    "ext-dom": "*",
-    "ext-soap": "*",
-    "robrichards/wse-php": "^2.0",
-    "symfony/yaml": "^7.0",
-    "webmozart/assert": "^1.12"
-  },
-  "autoload": {
-    "psr-4": {
-      "src\\": "src/"
+    "name": "gschurgast/eudr-api-client",
+    "description": "Minimal EUDR SOAP client utilities and functional test",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1",
+        "ext-dom": "*",
+        "ext-soap": "*",
+        "robrichards/wse-php": "^2.0",
+        "symfony/yaml": "^7.0",
+        "webmozart/assert": "^1.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "src\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.89",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5"
+    },
+    "scripts-descriptions": {
+        "test:functional": "Run functional tests"
+    },
+    "scripts": {
+        "dev:phpstan": "phpstan analyse --memory-limit=1G --no-progress --ansi",
+        "dev:phpcsfixer": "php-cs-fixer fix --ansi --verbose",
+        "test:functional": "vendor/bin/phpunit --colors=always --do-not-cache-result tests/Functional"
     }
-  },
-  "scripts": {
-    "demo:migration": "php tests/migration_demo.php",
-    "dev:phpstan": "phpstan analyse --memory-limit=1G --no-progress --ansi",
-    "dev:phpcsfixer": "php-cs-fixer fix --ansi --verbose"
-  },
-  "config": {
-    "sort-packages": true
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "^3.89",
-    "phpstan/phpstan": "^2.1"
-  }
 }

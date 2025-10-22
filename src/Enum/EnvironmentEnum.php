@@ -7,7 +7,7 @@ namespace src\Enum;
 /**
  * Represents the target environment for the EUDR SOAP services.
  */
-enum Environment: string
+enum EnvironmentEnum: string
 {
     case PRODUCTION = 'production';
     case ACCEPTANCE = 'acceptance';

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace src\Services;
 
 use RobRichards\WsePhp\WSSESoap;
-use src\Enum\Environment;
-use src\Enum\Mode;
+use src\Enum\EnvironmentEnum;
+use src\Enum\ModeEnum;
 use Webmozart\Assert\Assert;
 
 /**
  * Base class for EUDR SOAP clients.
  *
- * These @method annotations document the operations implemented by concrete
+ * These method annotations document the operations implemented by concrete
  * clients (EudrEchoClient, EudrSubmissionClient, EudrRetrievalClient) so that
  * static analysers (e.g. PHPStan) can understand dynamic calls like
  * $client->$op($env, $dto) when $client is typed as BaseSoapService.
@@ -30,7 +30,7 @@ abstract class BaseSoapService
 {
     protected ?string $username = null;
     protected ?string $password = null;
-    protected Environment $environment = Environment::ACCEPTANCE;
+    protected EnvironmentEnum $environment = EnvironmentEnum::ACCEPTANCE;
 
     public function setUsername(string $username): static
     {
@@ -46,7 +46,7 @@ abstract class BaseSoapService
         return $this;
     }
 
-    public function setEnvironment(Environment $environment): static
+    public function setEnvironment(EnvironmentEnum $environment): static
     {
         $this->environment = $environment;
 
@@ -55,7 +55,7 @@ abstract class BaseSoapService
 
     public function buildSoapClient(): \SoapClient
     {
-        if (Mode::ECHO === $this->getMode() && Environment::ACCEPTANCE !== $this->environment) {
+        if (ModeEnum::ECHO === $this->getMode() && EnvironmentEnum::ACCEPTANCE !== $this->environment) {
             throw new \LogicException('This service is not allowed on PRODUCTION environment.');
         }
 
@@ -139,5 +139,5 @@ abstract class BaseSoapService
         );
     }
 
-    abstract protected function getMode(): Mode;
+    abstract protected function getMode(): ModeEnum;
 }

@@ -12,7 +12,7 @@ use src\Services\EudrSubmissionClient;
 /**
  * Represents the target environment for the EUDR SOAP services.
  */
-enum Mode: string
+enum ModeEnum: string
 {
     case ECHO = 'echo';
     case SUBMISSION = 'submission';

@@ -7,7 +7,7 @@ namespace src\Enum;
 /**
  * Represents the target environment for the EUDR SOAP services.
  */
-enum WoodHeading: string
+enum WoodHeadingEnum: string
 {
     case FUEL_WOOD_4401 = '4401';
     case WOOD_CHARCOAL_4402 = '4402';

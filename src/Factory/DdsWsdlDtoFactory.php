@@ -2,6 +2,8 @@
 
 namespace src\Factory;
 
+use src\Enum\OperatorTypeEnum;
+use src\Enum\WoodHeadingEnum;
 use src\Request\AmendDdsRequest;
 use src\Request\GetDdsInfoByInternalReferenceNumberRequest;
 use src\Request\GetDdsInfoRequest;
@@ -20,6 +22,9 @@ use src\Request\Type\SpeciesInfoType;
 use src\Request\Type\StatementType;
 use Webmozart\Assert\Assert;
 
+/**
+ * @phpstan-import-type StatementArray from \src\Request\Type\StatementType
+ */
 class DdsWsdlDtoFactory
 {
     /**
@@ -27,7 +32,7 @@ class DdsWsdlDtoFactory
      */
     public static function testEcho(array $data): TestEchoRequest
     {
-        $dto = new TestEchoRequest();
+        $dto        = new TestEchoRequest();
         $dto->query = $data['query'];
 
         return $dto;
@@ -36,22 +41,13 @@ class DdsWsdlDtoFactory
     /**
      * @phpstan-param array{
      *     operatorType: string,
-     *     statement: array{
-     *         internalReferenceNumber?: string,
-     *         activityType: string,
-     *         countryOfActivity: string,
-     *         borderCrossCountry: string,
-     *         comment: string,
-     *         geoLocationConfidential?: bool,
-     *         commodities?: list<array<string, mixed>>,
-     *         operator?: array<string, mixed>
-     *     }
+     *     statement: StatementArray
      * } $data
      */
     public static function submitDds(array $data): SubmitDdsRequest
     {
-        $dto = new SubmitDdsRequest();
-        $dto->operatorType = $data['operatorType'];
+        $dto               = new SubmitDdsRequest();
+        $dto->operatorType = OperatorTypeEnum::tryFrom($data['operatorType']) ?? throw new \InvalidArgumentException('Invalid operatorType');;
         $dto->statement = self::buildStatementType($data['statement']);
 
         return $dto;
@@ -60,23 +56,14 @@ class DdsWsdlDtoFactory
     /**
      * @phpstan-param array{
      *     ddsIdentifier: string,
-     *     statement: array{
-     *         internalReferenceNumber?: string,
-     *         activityType: string,
-     *         countryOfActivity: string,
-     *         borderCrossCountry: string,
-     *         comment: string,
-     *         geoLocationConfidential?: bool,
-     *         commodities?: list<array<string, mixed>>,
-     *         operator?: array<string, mixed>
-     *     }
+     *     statement: StatementArray
      * } $data
      */
     public static function amendDds(array $data): AmendDdsRequest
     {
-        $dto = new AmendDdsRequest();
+        $dto                = new AmendDdsRequest();
         $dto->ddsIdentifier = $data['ddsIdentifier'];
-        $dto->statement = self::buildStatementType($data['statement']);
+        $dto->statement     = self::buildStatementType($data['statement']);
 
         return $dto;
     }
@@ -86,9 +73,9 @@ class DdsWsdlDtoFactory
      */
     public static function retractDds(array $data): RetractDdsRequest
     {
-        $dto = new RetractDdsRequest();
+        $dto                = new RetractDdsRequest();
         $dto->ddsIdentifier = $data['ddsIdentifier'];
-        $dto->reason = $data['reason'];
+        $dto->reason        = $data['reason'];
 
         return $dto;
     }
@@ -98,7 +85,7 @@ class DdsWsdlDtoFactory
      */
     public static function getDdsInfo(array $data): GetDdsInfoRequest
     {
-        $dto = new GetDdsInfoRequest();
+        $dto             = new GetDdsInfoRequest();
         $dto->identifier = $data['identifier'];
 
         return $dto;
@@ -109,7 +96,7 @@ class DdsWsdlDtoFactory
      */
     public static function getDdsInfoByInternalReferenceNumber(array $data): GetDdsInfoByInternalReferenceNumberRequest
     {
-        $dto = new GetDdsInfoByInternalReferenceNumberRequest();
+        $dto             = new GetDdsInfoByInternalReferenceNumberRequest();
         $dto->identifier = $data['identifier'];
 
         return $dto;
@@ -120,8 +107,8 @@ class DdsWsdlDtoFactory
      */
     public static function getStatementByIdentifiers(array $data): GetStatementByIdentifiersRequest
     {
-        $dto = new GetStatementByIdentifiersRequest();
-        $dto->referenceNumber = $data['referenceNumber'];
+        $dto                     = new GetStatementByIdentifiersRequest();
+        $dto->referenceNumber    = $data['referenceNumber'];
         $dto->verificationNumber = $data['verificationNumber'];
 
         return $dto;
@@ -132,35 +119,26 @@ class DdsWsdlDtoFactory
      */
     public static function getReferencedDds(array $data): GetReferenceDdsRequest
     {
-        $dto = new GetReferenceDdsRequest();
-        $dto->referenceNumber = $data['referenceNumber'];
+        $dto                                 = new GetReferenceDdsRequest();
+        $dto->referenceNumber                = $data['referenceNumber'];
         $dto->referenceDdsVerificationNumber = $data['referenceDdsVerificationNumber'];
 
         return $dto;
     }
 
     /**
-     * @phpstan-param array{
-     *     internalReferenceNumber?: string,
-     *     activityType: string,
-     *     countryOfActivity: string,
-     *     borderCrossCountry: string,
-     *     comment: string,
-     *     geoLocationConfidential?: bool,
-     *     commodities?: list<array<string, mixed>>,
-     *     operator?: array<string, mixed>
-     * } $statementData
+     * @phpstan-param StatementArray $statementData
      */
     private static function buildStatementType(array $statementData): StatementType
     {
         $statement = new StatementType();
 
         $statement->internalReferenceNumber = $statementData['internalReferenceNumber'] ?? '';
-        $statement->activityType = $statementData['activityType'];
-        $statement->countryOfActivity = $statementData['countryOfActivity'];
-        $statement->borderCrossCountry = $statementData['borderCrossCountry'];
-        $statement->comment = $statementData['comment'];
-        $statement->geoLocationConfidential = (bool) ($statementData['geoLocationConfidential'] ?? false);
+        $statement->activityType            = $statementData['activityType'];
+        $statement->countryOfActivity       = $statementData['countryOfActivity'];
+        $statement->borderCrossCountry      = $statementData['borderCrossCountry'];
+        $statement->comment                 = $statementData['comment'];
+        $statement->geoLocationConfidential = (bool)($statementData['geoLocationConfidential'] ?? false);
 
         // 3️⃣ Commodities (liste)
         foreach ($statementData['commodities'] ?? [] as $commodityData) {
@@ -168,16 +146,16 @@ class DdsWsdlDtoFactory
 
             // --- Descriptors
             if (isset($commodityData['descriptors'])) {
-                $desc = new DescriptorsType();
+                $desc                     = new DescriptorsType();
                 $desc->descriptionOfGoods = $commodityData['descriptors']['descriptionOfGoods'] ?? null;
 
                 if (isset($commodityData['descriptors']['goodsMeasure'])) {
-                    $gm = new GoodsMeasureType();
-                    $gm->netWeight = isset($commodityData['descriptors']['goodsMeasure']['netWeight'])
-                        ? (float) $commodityData['descriptors']['goodsMeasure']['netWeight']
+                    $gm                 = new GoodsMeasureType();
+                    $gm->netWeight      = isset($commodityData['descriptors']['goodsMeasure']['netWeight'])
+                        ? (float)$commodityData['descriptors']['goodsMeasure']['netWeight']
                         : null;
-                    $gm->volume = isset($commodityData['descriptors']['goodsMeasure']['volume'])
-                        ? (float) $commodityData['descriptors']['goodsMeasure']['volume']
+                    $gm->volume         = isset($commodityData['descriptors']['goodsMeasure']['volume'])
+                        ? (float)$commodityData['descriptors']['goodsMeasure']['volume']
                         : null;
                     $desc->goodsMeasure = $gm;
                 }
@@ -186,7 +164,7 @@ class DdsWsdlDtoFactory
             }
 
             // --- HS heading
-            $commodity->hsHeading = $commodityData['hsHeading'] ?? null;
+            $commodity->hsHeading = WoodHeadingEnum::tryFrom($commodityData['hsHeading']) ?? null;
 
             // --- Species Info (peut être un seul élément ou une liste)
             $speciesList = $commodityData['speciesInfo'] ?? [];
@@ -196,9 +174,9 @@ class DdsWsdlDtoFactory
             }
 
             foreach ($speciesList as $speciesData) {
-                $species = new SpeciesInfoType();
-                $species->scientificName = $speciesData['scientificName'] ?? null;
-                $species->commonName = $speciesData['commonName'] ?? null;
+                $species                  = new SpeciesInfoType();
+                $species->scientificName  = $speciesData['scientificName'] ?? null;
+                $species->commonName      = $speciesData['commonName'] ?? null;
                 $commodity->speciesInfo[] = $species;
             }
 
@@ -209,9 +187,9 @@ class DdsWsdlDtoFactory
             }
 
             foreach ($producerList as $producerData) {
-                $producer = new ProducerType();
+                $producer          = new ProducerType();
                 $producer->country = $producerData['country'] ?? null;
-                $producer->name = $producerData['name'] ?? null;
+                $producer->name    = $producerData['name'] ?? null;
 
                 if (!empty($producerData['geometryGeojson'])) {
                     $geo = $producerData['geometryGeojson'];
@@ -240,15 +218,15 @@ class DdsWsdlDtoFactory
         if (isset($statementData['operator'])) {
             $operatorData = $statementData['operator'];
 
-            $operator = new OperatorType();
+            $operator        = new OperatorType();
             $operator->email = $operatorData['email'] ?? null;
             $operator->phone = $operatorData['phone'] ?? null;
 
             if (isset($operatorData['nameAndAddress'])) {
-                $addr = new OperatorNameAndAddressType();
-                $addr->name = $operatorData['nameAndAddress']['name'] ?? '';
-                $addr->country = $operatorData['nameAndAddress']['country'] ?? '';
-                $addr->address = $operatorData['nameAndAddress']['address'] ?? '';
+                $addr                     = new OperatorNameAndAddressType();
+                $addr->name               = $operatorData['nameAndAddress']['name'] ?? '';
+                $addr->country            = $operatorData['nameAndAddress']['country'] ?? '';
+                $addr->address            = $operatorData['nameAndAddress']['address'] ?? '';
                 $operator->nameAndAddress = $addr;
             }
 
