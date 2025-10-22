@@ -4,35 +4,37 @@ declare(strict_types=1);
 
 namespace src\Services;
 
-use SoapClient;
 use src\Enum\Environment;
 use src\Enum\Mode;
+use src\Request\GetDdsInfoByInternalReferenceNumberRequest;
+use src\Request\GetDdsInfoRequest;
+use src\Request\GetReferenceDdsRequest;
+use src\Request\GetStatementByIdentifiersRequest;
 
 class EudrRetrievalClient extends BaseSoapService
 {
-    protected function getSoapClient(
-        Environment $environment = Environment::ACCEPTANCE,
-        bool $authentified = true
-    ): SoapClient {
-        return $this->buildSoapClient($environment, Mode::RETRIEVAL, $authentified);
-    }
-    public function getDdsInfo(Environment $environment, array $request): mixed
+    public function getDdsInfo(Environment $environment, GetDdsInfoRequest $request): mixed
     {
-        return $this->getSoapClient($environment)->__soapCall('getDdsInfo', [$request]);
+        return $this->buildSoapClient($environment)->__soapCall('getDdsInfo', [$request]);
     }
 
-    public function getDdsInfoByInternalReferenceNumber(Environment $environment, array $request): mixed
+    public function getDdsInfoByInternalReferenceNumber(Environment $environment, GetDdsInfoByInternalReferenceNumberRequest $request): mixed
     {
-        return $this->getSoapClient($environment)->__soapCall('getDdsInfoByInternalReferenceNumber', [$request]);
+        return $this->buildSoapClient($environment)->__soapCall('getDdsInfoByInternalReferenceNumber', [$request->identifier]);
     }
 
-    public function getStatementByIdentifiers(Environment $environment, array $request): mixed
+    public function getStatementByIdentifiers(Environment $environment, GetStatementByIdentifiersRequest $request): mixed
     {
-        return $this->getSoapClient($environment)->__soapCall('getStatementByIdentifiers', [$request]);
+        return $this->buildSoapClient($environment)->__soapCall('getStatementByIdentifiers', [$request]);
     }
 
-    public function getReferencedDds(Environment $environment, array $request): mixed
+    public function getReferencedDds(Environment $environment, GetReferenceDdsRequest $request): mixed
     {
-        return $this->getSoapClient($environment)->__soapCall('getReferencedDds', [$request]);
+        return $this->buildSoapClient($environment)->__soapCall('getReferencedDds', [$request]);
+    }
+
+    protected function getMode(): Mode
+    {
+        return Mode::RETRIEVAL;
     }
 }

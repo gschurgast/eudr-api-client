@@ -2,3 +2,5 @@
 /.idea
 /wsdl/
 .env
+/var/
+/.php-cs-fixer.cache

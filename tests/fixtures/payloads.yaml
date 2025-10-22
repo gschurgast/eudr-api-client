@@ -2,35 +2,111 @@ echo:
   testEcho:
     query: "hello from demo"
 
-#retrieval:
-#  getDdsInfo:
-#    query:
-#      uuid: "00000000-0000-0000-0000-000000000000"
-#  getDdsInfoByInternalReferenceNumber:
-#    internalReferenceNumber: "TEST-REF-123"
-#  getStatementByIdentifiers:
-#    query:
-#      operatorEori: "EO-TEST"
-#      operatorCountryIsoCode: "FR"
-#      productCpcCodes: []
-#  getReferencedDds:
-#    query:
-#      uuid: "00000000-0000-0000-0000-000000000000"
-#
-#submission:
-#  submitDds:
-#    query:
-#      externalReferenceNumber: "TEST-EXT-REF"
-#      dds:
-#        operatorEori: "EO-TEST"
-#        operatorCountryIsoCode: "FR"
-#        productCpcCode: "0123"
-#      geolocations: []
-#  amendDds:
-#    query:
-#      uuid: "00000000-0000-0000-0000-000000000000"
-#      changes: []
-#  retractDds:
-#    query:
-#      uuid: "00000000-0000-0000-0000-000000000000"
-#      reason: "demo"
+submission:
+  submitDds:
+    operatorType: "OPERATOR"
+    statement:
+      internalReferenceNumber: "DLE20/362"
+      activityType: "IMPORT"
+      countryOfActivity: 'FR'
+      borderCrossCountry: 'DE'
+      comment: "Minimal test scenario"
+      commodities:
+        - descriptors:
+            descriptionOfGoods: "Test wood products"
+            goodsMeasure:
+              netWeight: 5
+              volume: 4
+          hsHeading: "4401"
+          speciesInfo:
+            scientificName: "Fagus silvatica"
+            commonName: "BUKVA OBIČNA"
+          producers:
+            country: "HR"
+            name: "GreenWood Solutions Ltd."
+            geometryGeojson:
+              type: FeatureCollection
+              features:
+                - type: Feature
+                  geometry:
+                    type: Polygon
+                    coordinates:
+                      - - [ -1.1864, 6.5244 ]
+                        - [ -1.1874, 6.5244 ]
+                        - [ -1.1874, 6.5344 ]
+                        - [ -1.1864, 6.5344 ]
+                        - [ -1.1864, 6.5244 ]
+                  properties:
+                    gjid: "580"
+                    godina: 2016
+                    povrsina: 31.24
+                    oznaka: "42 a"
+      operator:
+        nameAndAddress:
+          name: "Vente-unique.com"
+          country: "FR"
+          address: "9 RUE JACQUARD 93310 LE PRE SAINT GERVAIS"
+        email: "info@vente-unique.com"
+        phone: "01 23 45 67 89"
+      geoLocationConfidential: false
+  amendDds:
+    ddsIdentifier: "9f0ebccd-5fc0-4321-b93a-c732efda7a46"
+    statement:
+      internalReferenceNumber: "DLE20/362"
+      activityType: "IMPORT"
+      countryOfActivity: 'FR'
+      borderCrossCountry: 'DE'
+      comment: "Minimal test scenario"
+      commodities:
+        - descriptors:
+            descriptionOfGoods: "Test wood products"
+            goodsMeasure:
+              netWeight: 5
+              volume: 4
+          hsHeading: "4401"
+          speciesInfo:
+            scientificName: "Fagus silvatica"
+            commonName: "BUKVA OBIČNA"
+          producers:
+            country: "HR"
+            name: "GreenWood Solutions Ltd."
+            geometryGeojson:
+              type: FeatureCollection
+              features:
+                - type: Feature
+                  geometry:
+                    type: Polygon
+                    coordinates:
+                      - - [ -1.1864, 6.5244 ]
+                        - [ -1.1874, 6.5244 ]
+                        - [ -1.1874, 6.5344 ]
+                        - [ -1.1864, 6.5344 ]
+                        - [ -1.1864, 6.5244 ]
+                  properties:
+                    gjid: "580"
+                    godina: 2016
+                    povrsina": 31.24
+                    oznaka": "42 a"
+      operator:
+        nameAndAddress:
+          name: "Vente-unique.com"
+          country: "FR"
+          address: "9 BIS RUE JACQUARD 93310 LE PRE SAINT GERVAIS"
+        email: "info@vente-unique.com"
+        phone: "01 23 45 67 89"
+      geoLocationConfidential: false
+  retractDds:
+    ddsIdentifier: "9f0ebccd-5fc0-4321-b93a-c732efda7a46"
+    reason: "demo"
+
+retrieval:
+  getDdsInfo:
+    identifier: "8f14e45f-ea9e-4a19-9d7f-13cf66ac65c7"
+  getDdsInfoByInternalReferenceNumber:
+    identifier: "DLE20/362"
+  getStatementByIdentifiers:
+    referenceNumber: "25FRQHDA231473"
+    verificationNumber: "4LB8MMCR"
+  getReferencedDds:
+    referenceNumber: "25FRQHDA231473"
+    referenceDdsVerificationNumber: "4LB8MMCR"

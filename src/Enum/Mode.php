@@ -15,8 +15,8 @@ use src\Services\EudrSubmissionClient;
 enum Mode: string
 {
     case ECHO = 'echo';
-    case RETRIEVAL = 'retrieval';
     case SUBMISSION = 'submission';
+    case RETRIEVAL = 'retrieval';
 
     /**
      * Returns the url for the selected mode.
@@ -25,8 +25,8 @@ enum Mode: string
     {
         return match ($this) {
             self::ECHO => '/tracesnt/ws/EudrEchoService?wsdl',
-            self::RETRIEVAL => '/tracesnt/ws/EUDRRetrievalServiceV2?wsdl',
             self::SUBMISSION => '/tracesnt/ws/EUDRSubmissionServiceV2?wsdl',
+            self::RETRIEVAL => '/tracesnt/ws/EUDRRetrievalServiceV2?wsdl',
         };
     }
 
@@ -34,8 +34,8 @@ enum Mode: string
     {
         return match ($this) {
             self::ECHO => new EudrEchoClient(),
-            self::RETRIEVAL => new EudrRetrievalClient(),
             self::SUBMISSION => new EudrSubmissionClient(),
+            self::RETRIEVAL => new EudrRetrievalClient(),
         };
     }
 }

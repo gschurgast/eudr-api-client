@@ -25,18 +25,19 @@ enum Environment: string
 
     /**
      * Build a full service endpoint URL from a relative path.
-     * Example: /tracesnt/ws/EudrEchoService
+     * Example: /tracesnt/ws/EudrEchoService.
      */
     public function getUrl(string $path): string
     {
-        $path = '/' . ltrim($path, '/');
-        return $this->baseHost() . $path;
+        $path = '/'.ltrim($path, '/');
+
+        return $this->baseHost().$path;
     }
 
     /**
      * Default webServiceClientId per environment.
      * - acceptance -> eudr-test
-     * - production -> eudr-repository
+     * - production -> eudr-repository.
      */
     public function getWebServiceClientId(): string
     {
@@ -49,7 +50,7 @@ enum Environment: string
     /**
      * Default SSL verification behavior per environment.
      * - acceptance -> false (for dev/testing)
-     * - production -> true (strict)
+     * - production -> true (strict).
      */
     public function getSslVerify(): bool
     {

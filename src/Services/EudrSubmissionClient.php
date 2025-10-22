@@ -4,32 +4,31 @@ declare(strict_types=1);
 
 namespace src\Services;
 
-use SoapClient;
 use src\Enum\Environment;
 use src\Enum\Mode;
+use src\Request\AmendDdsRequest;
+use src\Request\RetractDdsRequest;
+use src\Request\SubmitDdsRequest;
 
 class EudrSubmissionClient extends BaseSoapService
 {
-    private ?SoapClient $client = null;
-
-    protected function getSoapClient(
-        Environment $environment = Environment::ACCEPTANCE,
-        bool $authentified = true
-    ): SoapClient {
-        return $this->buildSoapClient($environment, Mode::SUBMISSION, $authentified);
-    }
-    public function submitDds(Environment $environment, array $request): mixed
+    public function submitDds(Environment $environment, SubmitDdsRequest $request): mixed
     {
-        return $this->getSoapClient($environment)->__soapCall('submitDds', [$request]);
+        return $this->buildSoapClient($environment)->__soapCall('submitDds', [$request]);
     }
 
-    public function amendDds(Environment $environment, array $request): mixed
+    public function amendDds(Environment $environment, AmendDdsRequest $request): mixed
     {
-        return $this->getSoapClient($environment)->__soapCall('amendDds', [$request]);
+        return $this->buildSoapClient($environment)->__soapCall('amendDds', [$request]);
     }
 
-    public function retractDds(Environment $environment, array $request): mixed
+    public function retractDds(Environment $environment, RetractDdsRequest $request): mixed
     {
-        return $this->getSoapClient($environment)->__soapCall('retractDds', [$request]);
+        return $this->buildSoapClient($environment)->__soapCall('retractDds', [$request]);
+    }
+
+    public function getMode(): Mode
+    {
+        return Mode::SUBMISSION;
     }
 }
