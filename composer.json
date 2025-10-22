@@ -1,7 +1,7 @@
 {
   "name": "gschurgast/eudr-api-client",
   "description": "Minimal EUDR SOAP client utilities and functional test",
-  "type": "project",
+  "type": "library",
   "license": "MIT",
   "require": {
     "php": ">=8.1",
@@ -17,7 +17,9 @@
     }
   },
   "scripts": {
-    "demo:migration": "php tests/migration_demo.php"
+    "demo:migration": "php tests/migration_demo.php",
+    "dev:phpstan": "phpstan analyse --memory-limit=1G --no-progress --ansi",
+    "dev:phpcsfixer": "php-cs-fixer fix --ansi --verbose"
   },
   "config": {
     "sort-packages": true

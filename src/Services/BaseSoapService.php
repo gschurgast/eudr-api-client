@@ -17,27 +17,49 @@ use Webmozart\Assert\Assert;
  * static analysers (e.g. PHPStan) can understand dynamic calls like
  * $client->$op($env, $dto) when $client is typed as BaseSoapService.
  *
- * @method mixed testEcho(Environment $environment, \src\Request\TestEchoRequest $request)
- * @method mixed submitDds(Environment $environment, \src\Request\SubmitDdsRequest $request)
- * @method mixed amendDds(Environment $environment, \src\Request\AmendDdsRequest $request)
- * @method mixed retractDds(Environment $environment, \src\Request\RetractDdsRequest $request)
- * @method mixed getDdsInfo(Environment $environment, \src\Request\GetDdsInfoRequest $request)
- * @method mixed getDdsInfoByInternalReferenceNumber(Environment $environment, \src\Request\GetDdsInfoByInternalReferenceNumberRequest $request)
- * @method mixed getStatementByIdentifiers(Environment $environment, \src\Request\GetStatementByIdentifiersRequest $request)
- * @method mixed getReferencedDds(Environment $environment, \src\Request\GetReferenceDdsRequest $request)
+ * @method mixed testEcho(\src\Request\TestEchoRequest $request)
+ * @method mixed submitDds(\src\Request\SubmitDdsRequest $request)
+ * @method mixed amendDds(\src\Request\AmendDdsRequest $request)
+ * @method mixed retractDds(\src\Request\RetractDdsRequest $request)
+ * @method mixed getDdsInfo(\src\Request\GetDdsInfoRequest $request)
+ * @method mixed getDdsInfoByInternalReferenceNumber(\src\Request\GetDdsInfoByInternalReferenceNumberRequest $request)
+ * @method mixed getStatementByIdentifiers(\src\Request\GetStatementByIdentifiersRequest $request)
+ * @method mixed getReferencedDds(\src\Request\GetReferenceDdsRequest $request)
  */
 abstract class BaseSoapService
 {
-    private string $username = 'n00hfgop';
-    private string $authKey = 'xlOPMeepcGgBnKkDWBbygrPeBi2ajSHpikqzJCsW';
+    protected ?string $username = null;
+    protected ?string $password = null;
+    protected Environment $environment = Environment::ACCEPTANCE;
 
-    public function buildSoapClient(Environment $environment = Environment::ACCEPTANCE): \SoapClient
+    public function setUsername(string $username): static
     {
-        if (Mode::ECHO === $this->getMode() && Environment::ACCEPTANCE !== $environment) {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function setEnvironment(Environment $environment): static
+    {
+        $this->environment = $environment;
+
+        return $this;
+    }
+
+    public function buildSoapClient(): \SoapClient
+    {
+        if (Mode::ECHO === $this->getMode() && Environment::ACCEPTANCE !== $this->environment) {
             throw new \LogicException('This service is not allowed on PRODUCTION environment.');
         }
 
-        $wsdl = $environment->getUrl($this->getMode()->geturl());
+        $wsdl = $this->environment->getUrl($this->getMode()->geturl());
 
         $defaults = [
             'trace' => true,
@@ -46,7 +68,7 @@ abstract class BaseSoapService
             'features' => SOAP_SINGLE_ELEMENT_ARRAYS,
         ];
 
-        if (!$environment->getSslVerify()) {
+        if (!$this->environment->getSslVerify()) {
             $ctx = stream_context_create([
                 'ssl' => [
                     'verify_peer' => false,
@@ -62,7 +84,7 @@ abstract class BaseSoapService
 
         $client = new \SoapClient($wsdl, $defaults);
 
-        $wsHeader = $this->createHeader($environment);
+        $wsHeader = $this->createHeader();
         $client->__setSoapHeaders($wsHeader);
 
         return $client;
@@ -71,7 +93,7 @@ abstract class BaseSoapService
     /**
      * Crée un header WS-Security conforme aux exigences (nonce, created, digest, expires, WebServiceClientId).
      */
-    private function createHeader(Environment $environment): \SoapHeader
+    private function createHeader(): \SoapHeader
     {
         // Build a minimal SOAP envelope header via WSE-PHP to generate WS-Security elements
         $doc = new \DOMDocument('1.0', 'UTF-8');
@@ -85,7 +107,11 @@ abstract class BaseSoapService
         $wsse = new WSSESoap($doc, false);
         // Add Timestamp and UsernameToken (PasswordDigest=true)
         $wsse->addTimestamp(60);
-        $wsse->addUserToken($this->username, $this->authKey, true);
+
+        if (null === $this->username || null === $this->password) {
+            throw new \LogicException('Missing EUDR credentials. Please call setUsername() and setPassword() before making requests.');
+        }
+        $wsse->addUserToken($this->username, $this->password, true);
 
         // Extract the generated wsse:Security node as XML
         $xpath = new \DOMXPath($doc);
@@ -99,7 +125,7 @@ abstract class BaseSoapService
         $xmlSecurity = $doc->saveXML($securityNode);
 
         // Add the WebServiceClientId header (outside of wsse:Security)
-        $clientId = $environment->getWebServiceClientId();
+        $clientId = $this->environment->getWebServiceClientId();
         $xmlClientId = '<v4:WebServiceClientId xmlns:v4="http://ec.europa.eu/sanco/tracesnt/base/v4">'
             .htmlspecialchars($clientId, ENT_XML1).'</v4:WebServiceClientId>';
 

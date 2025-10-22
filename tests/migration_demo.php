@@ -13,6 +13,7 @@ require_once $root.'/vendor/autoload.php';
 use src\Enum\Environment;
 use src\Enum\Mode;
 use src\Factory\DdsWsdlDtoFactory;
+use src\Services\EudrClient;
 use Symfony\Component\Yaml\Yaml;
 
 // Load fixtures
@@ -26,9 +27,8 @@ $env = Environment::ACCEPTANCE;
 $clientId = $env->getWebServiceClientId();
 printf("%s\nEUDR PHP Migration Demo (ENV=%s, CLIENT_ID=%s)\n%s\n\n", $line, $env->name, $env->getWebServiceClientId(), $line);
 
-$echoClient = Mode::ECHO->getWebServiceClient();
-$submissionClient = Mode::SUBMISSION->getWebServiceClient();
-$retrievalClient = Mode::RETRIEVAL->getWebServiceClient();
+$eudrClient = new EudrClient('n00hfgop', 'xlOPMeepcGgBnKkDWBbygrPeBi2ajSHpikqzJCsW', $env);
+$response = null;
 
 foreach ($fixtures as $section => $sectionFixtures) {
     $lineWidth = 80;
@@ -43,55 +43,55 @@ foreach ($fixtures as $section => $sectionFixtures) {
         echo $opLine.PHP_EOL;
         try {
             if (Mode::ECHO === Mode::from($section)) {
-                $client = Mode::ECHO->getWebServiceClient();
+                $client = $eudrClient->getClient(Mode::ECHO);
                 if ('testEcho' === $op) {
                     /** @var array{query: string} $payload */
                     $submitDto = DdsWsdlDtoFactory::testEcho($payload);
-                    $response = $client->testEcho($env, $submitDto);
+                    $response = $client->testEcho($submitDto);
                 }
             } elseif (Mode::SUBMISSION === Mode::from($section)) {
-                $client = Mode::SUBMISSION->getWebServiceClient();
+                $client = $eudrClient->getClient(Mode::SUBMISSION);
 
                 if ('submitDds' === $op) {
                     /** @var array{operatorType: string, statement: array{internalReferenceNumber?: string, activityType: string, countryOfActivity: string, borderCrossCountry: string, comment: string, geoLocationConfidential?: bool, commodities?: list<array<string, mixed>>, operator?: array<string, mixed>}} $payload */
                     $submitDto = DdsWsdlDtoFactory::submitDds($payload);
-                    $response = $client->submitDds($env, $submitDto);
+                    $response = $client->submitDds($submitDto);
                 } elseif ('amendDds' === $op) {
                     /** @var array{ddsIdentifier: string, statement: array{internalReferenceNumber?: string, activityType: string, countryOfActivity: string, borderCrossCountry: string, comment: string, geoLocationConfidential?: bool, commodities?: list<array<string, mixed>>, operator?: array<string, mixed>}} $payload */
                     $submitDto = DdsWsdlDtoFactory::amendDds($payload);
-                    $response = $client->amendDds($env, $submitDto);
+                    $response = $client->amendDds($submitDto);
                 } elseif ('retractDds' === $op) {
                     /** @var array{ddsIdentifier: string, reason: string} $payload */
                     $submitDto = DdsWsdlDtoFactory::retractDds($payload);
-                    $response = $client->retractDds($env, $submitDto);
+                    $response = $client->retractDds($submitDto);
                 } else {
                     throw new InvalidArgumentException("Unknown DTO type '$op'");
                 }
             } elseif (Mode::RETRIEVAL === Mode::from($section)) {
-                $client = Mode::RETRIEVAL->getWebServiceClient();
-
+                $client = $eudrClient->getClient(Mode::RETRIEVAL);
                 if ('getDdsInfo' === $op) {
                     /** @var array{identifier: string} $payload */
                     $submitDto = DdsWsdlDtoFactory::getDdsInfo($payload);
-                    $response = $client->getDdsInfo($env, $submitDto);
+                    $response = $client->getDdsInfo($submitDto);
                 } elseif ('getDdsInfoByInternalReferenceNumber' === $op) {
                     /** @var array{identifier: string} $payload */
                     $submitDto = DdsWsdlDtoFactory::getDdsInfoByInternalReferenceNumber($payload);
-                    $response = $client->getDdsInfoByInternalReferenceNumber($env, $submitDto);
+                    $response = $client->getDdsInfoByInternalReferenceNumber($submitDto);
                 } elseif ('getStatementByIdentifiers' === $op) {
                     /** @var array{referenceNumber: string, verificationNumber: string} $payload */
                     $submitDto = DdsWsdlDtoFactory::getStatementByIdentifiers($payload);
-                    $response = $client->getStatementByIdentifiers($env, $submitDto);
+                    $response = $client->getStatementByIdentifiers($submitDto);
                 } elseif ('getReferencedDds' === $op) {
                     /** @var array{referenceNumber: string, referenceDdsVerificationNumber: string} $payload */
                     $submitDto = DdsWsdlDtoFactory::getReferencedDds($payload);
-                    $response = $client->getReferencedDds($env, $submitDto);
+                    $response = $client->getReferencedDds($submitDto);
                 } else {
                     throw new InvalidArgumentException("Unknown DTO type '$op'");
                 }
             } else {
                 throw new InvalidArgumentException("Unknown Mode  '$section'");
             }
+            var_dump($response);
         } catch (SoapFault $e) {
             echo "SOAP Fault:\nCode: {$e->faultcode}\nMessage: {$e->faultstring}\n".'Detail: '.print_r($e->detail ?? null, true)."\n";
         }

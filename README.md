@@ -33,28 +33,34 @@ Quick start with Docker (recommended)
      docker compose run --rm -e ENV=production php composer run demo:migration
 
 Environment and credentials
-- You can pass credentials via env vars:
-  - EUDR_USERNAME, EUDR_PASSWORD, EUDR_CLIENT_ID (defaults to eudr-test), SSL=true|false
-- The demo and services can also infer the environment automatically from EUDR_CLIENT_ID (eudr-repository → production; eudr-test → acceptance). You can still force ENV explicitly via the ENV variable.
+- Configure credentials via environment variables (recommended for security):
+  - EUDR_USERNAME
+  - EUDR_PASSWORD
+- The WebServiceClientId is provided per-environment by default (acceptance → eudr-test, production → eudr-repository).
+- Example (shell):
+  export EUDR_USERNAME="your-username"
+  export EUDR_PASSWORD="your-password"
+
+Usage
+- Instantiate the high-level client; it will load credentials from your environment or the project .env file:
+  $client = new \src\Services\EudrClient();
+  // or pass them explicitly
+  $client = new \src\Services\EudrClient('user', 'pass');
+
+Docker Compose
+- docker-compose.yml passes EUDR_USERNAME and EUDR_PASSWORD from your host env into the container. Ensure they are set before running commands.
 
 Notes
-- Echo service is automatically disallowed in PRODUCTION; attempting to use it will result in a LogicException. The functional demo/test will skip the Echo service in PRODUCTION and report it as skipped.
-- The functional scripts only list SOAP operations exposed by the WSDL; they do not perform authenticated or state-changing calls.
+- Echo service is automatically disallowed in PRODUCTION; attempting to use it will result in a LogicException.
+- The functional demo performs authenticated calls with WS-Security UsernameToken. Provide valid credentials to avoid SOAP Faults.
 
 How it works
 - Environment enum builds the correct base host for the selected environment and joins it with the service path.
-- EudrSoapClient centralizes SoapClient creation via a helper that sets sensible defaults and allows forbidding certain services in PRODUCTION (e.g., Echo). It also allows credential and endpoint override options.
-- PHP services (EudrEchoClient, EudrRetrievalClientV2, EudrSubmissionClientV2) expose listFunctions() and thin method wrappers for common operations, plus a generic call() method.
+- BaseSoapService constructs SoapClient and injects WS-Security headers (Timestamp + UsernameToken with PasswordDigest). Credentials are provided to services via setUsername()/setPassword() by the EudrClient, which can load them from env/.env.
+- PHP services (EudrEchoClient, EudrRetrievalClient, EudrSubmissionClient) implement thin wrappers for SOAP operations.
 
 Extending
-- WS-Security (UsernameToken, signatures, etc.) is not implemented. If your integration requires WS-Security, you will need to extend the SoapClient options or implement a SOAP header/signature layer.
-- You can pass extra options to the service constructors, for example:
-  $client = (new \src\Services\EudrRetrievalClientV2([
-      'username' => 'user',
-      'password' => 'pass',
-      'webServiceClientId' => 'eudr-test',
-      'ssl' => true, // set false to disable peer verification (dev only)
-  ]));
+- If you use a framework, you can set credentials on the service instances from your configuration or secrets manager before making calls.
 
 Troubleshooting
 - SSL/certificates: The endpoints require HTTPS. Ensure your container or host trusts the certificate store (Debian/Alpine CA packages installed). The provided Docker image includes ca-certificates.

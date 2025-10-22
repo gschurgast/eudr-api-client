@@ -3,6 +3,9 @@ services:
     build: .
     image: eudr-api-client-php:latest
     working_dir: /app
+    environment:
+      - EUDR_USERNAME=${EUDR_USERNAME:-}
+      - EUDR_PASSWORD=${EUDR_PASSWORD:-}
     volumes:
       - ./:/app
     # Default command shows PHP version; override on the CLI for interactive runs
