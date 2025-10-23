@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace src\Dto;
 
+use src\Serializer\JmsSerializationTrait;
+
 final class SubmitDdsResponse
 {
+    use JmsSerializationTrait;
+
     public string $ddsIdentifier = '';
-
-    public static function fromSoap(mixed $soapResult): self
-    {
-        $self                = new self();
-        $self->ddsIdentifier = $soapResult->ddsIdentifier;
-
-        return $self;
-    }
 }

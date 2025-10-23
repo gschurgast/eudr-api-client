@@ -2,29 +2,28 @@
 
 namespace src\Dto;
 
+use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Type;
+use JMS\Serializer\Annotation\VirtualProperty;
 use src\Dto\Type\StatementType;
 use src\Enum\OperatorTypeEnum;
+use src\Serializer\JmsSerializationTrait;
 
-/**
- * @phpstan-import-type StatementArray from Type\StatementType
- */
 class SubmitDdsRequest
 {
+    use JmsSerializationTrait;
+
+    #[Exclude]
     public OperatorTypeEnum $operatorType;
 
     public StatementType $statement;
 
-    /**
-     * @return array{
-     *      operatorType: 'OPERATOR'|'TRADER',
-     *      statement: StatementArray
-     * }
-     */
-    public function toArray(): array
+    #[VirtualProperty]
+    #[SerializedName('operatorType')]
+    #[Type('string')]
+    public function getOperatorTypeValue(): string
     {
-        return [
-            'operatorType' => $this->operatorType->value,
-            'statement'    => $this->statement->toArray(),
-        ];
+        return $this->operatorType->value;
     }
 }

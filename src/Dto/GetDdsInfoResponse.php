@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace src\Dto;
 
+use JMS\Serializer\Annotation\Type;
+use src\Serializer\JmsSerializationTrait;
+
 final class GetDdsInfoResponse
 {
+    use JmsSerializationTrait;
+
     public ?string $identifier = null;
 
     public ?string $referenceNumber = null;
@@ -14,22 +19,8 @@ final class GetDdsInfoResponse
 
     public ?string $status = null;
 
+    #[Type("DateTime<'Y-m-d\\TH:i:s.vP'>")]
     public ?\DateTime $date = null;
 
     public ?string $updatedBy = null;
-
-    public static function fromSoap(mixed $soapResult): self
-    {
-        $data = $soapResult->statementInfo[0] ?? $soapResult;
-
-        $self                     = new self();
-        $self->identifier         = $data->identifier ?? null;
-        $self->referenceNumber    = $data->referenceNumber ?? null;
-        $self->verificationNumber = $data->verificationNumber ?? null;
-        $self->status             = $data->status;
-        $self->date               = $data->date ? new \DateTime($data->date) : null;
-        $self->updatedBy          = $data->updatedBy ?? null;
-
-        return $self;
-    }
 }

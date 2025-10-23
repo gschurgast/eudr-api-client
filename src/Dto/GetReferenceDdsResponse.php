@@ -6,9 +6,11 @@ namespace src\Dto;
 
 use src\Serializer\JmsSerializationTrait;
 
-final class AmendDdsResponse
+final class GetReferenceDdsResponse
 {
     use JmsSerializationTrait;
+
+    public ?string $referenceNumber = null;
 
     public ?string $status = null;
 }

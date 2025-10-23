@@ -8,8 +8,8 @@ use src\Dto\GetDdsInfoByInternalReferenceNumberRequest;
 use src\Dto\GetDdsInfoByInternalReferenceNumberResponse;
 use src\Dto\GetDdsInfoRequest;
 use src\Dto\GetDdsInfoResponse;
-use src\Dto\GetReferencedDdsResponse;
 use src\Dto\GetReferenceDdsRequest;
+use src\Dto\GetReferenceDdsResponse;
 use src\Dto\GetStatementByIdentifiersRequest;
 use src\Dto\GetStatementByIdentifiersResponse;
 use src\Enum\ModeEnum;
@@ -20,7 +20,7 @@ class EudrRetrievalClient extends BaseSoapService
     {
         $raw = $this->buildSoapClient()->__soapCall('getDdsInfo', [$request]);
 
-        return GetDdsInfoResponse::fromSoap($raw);
+        return GetDdsInfoResponse::fromSoap($raw->statementInfo[0]);
     }
 
     public function getDdsInfoByInternalReferenceNumber(GetDdsInfoByInternalReferenceNumberRequest $request): GetDdsInfoByInternalReferenceNumberResponse
@@ -34,14 +34,14 @@ class EudrRetrievalClient extends BaseSoapService
     {
         $raw = $this->buildSoapClient()->__soapCall('getStatementByIdentifiers', [$request]);
 
-        return GetStatementByIdentifiersResponse::fromSoap($raw);
+        return GetStatementByIdentifiersResponse::fromSoap($raw->statement);
     }
 
-    public function getReferencedDds(GetReferenceDdsRequest $request): GetReferencedDdsResponse
+    public function getReferencedDds(GetReferenceDdsRequest $request): GetReferenceDdsResponse
     {
         $raw = $this->buildSoapClient()->__soapCall('getReferencedDds', [$request]);
 
-        return GetReferencedDdsResponse::fromSoap($raw);
+        return GetReferenceDdsResponse::fromSoap($raw);
     }
 
     protected function getMode(): ModeEnum

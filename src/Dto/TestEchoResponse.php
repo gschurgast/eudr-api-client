@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace src\Dto;
 
+use src\Serializer\JmsSerializationTrait;
+
 final class TestEchoResponse
 {
+    use JmsSerializationTrait;
+
     public string $status = '';
-
-    public static function fromSoap(mixed $soapResult): self
-    {
-        $self         = new self();
-        $self->status = $soapResult->status;
-
-        return $self;
-    }
 }

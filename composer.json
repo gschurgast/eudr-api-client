@@ -9,7 +9,8 @@
         "ext-soap": "*",
         "robrichards/wse-php": "^2.0",
         "symfony/yaml": "^7.0",
-        "webmozart/assert": "^1.12"
+        "webmozart/assert": "^1.12",
+        "jms/serializer": "^3.31"
     },
     "autoload": {
         "psr-4": {

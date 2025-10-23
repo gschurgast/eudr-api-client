@@ -2,66 +2,34 @@
 
 namespace src\Dto\Type;
 
+use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Type;
+use JMS\Serializer\Annotation\VirtualProperty;
 use src\Enum\WoodHeadingEnum;
 
 class CommodityType
 {
-    public ?int $position;
+    public ?int $position = null;
 
     public ?DescriptorsType $descriptors = null;
 
+    #[Exclude]
     public ?WoodHeadingEnum $hsHeading = null;
 
-    /**
-     * @var SpeciesInfoType[]|null
-     */
+    /** @var SpeciesInfoType[]|null */
+    #[Type('array<src\\Dto\\Type\\SpeciesInfoType>')]
     public ?array $speciesInfo = null; // array of SpeciesInfoType
 
-    /**
-     * @var ProducerType[]|null
-     */
+    /** @var ProducerType[]|null */
+    #[Type('array<src\\Dto\\Type\\ProducerType>')]
     public ?array $producers = null; // array of ProducerType
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function toArray(): array
+    #[VirtualProperty]
+    #[SerializedName('hsHeading')]
+    #[Type('string')]
+    public function getHsHeadingValue(): ?string
     {
-        $descriptors = null;
-        if ($this->descriptors instanceof DescriptorsType) {
-            $descriptors = [
-                'descriptionOfGoods' => $this->descriptors->descriptionOfGoods,
-            ];
-            if ($this->descriptors->goodsMeasure instanceof GoodsMeasureType) {
-                $descriptors['goodsMeasure'] = [
-                    'netWeight' => $this->descriptors->goodsMeasure->netWeight ?? null,
-                    'volume'    => $this->descriptors->goodsMeasure->volume ?? null,
-                ];
-            }
-        }
-
-        $speciesInfo = [];
-        foreach (($this->speciesInfo ?? []) as $s) {
-            $speciesInfo[] = [
-                'scientificName' => $s->scientificName ?? null,
-                'commonName'     => $s->commonName ?? null,
-            ];
-        }
-
-        $producers = [];
-        foreach (($this->producers ?? []) as $p) {
-            $producers[] = [
-                'country'         => $p->country ?? null,
-                'name'            => $p->name ?? null,
-                'geometryGeojson' => $p->geometryGeojson ?? null,
-            ];
-        }
-
-        return [
-            'descriptors' => $descriptors,
-            'hsHeading'   => $this->hsHeading ? $this->hsHeading->value : null,
-            'speciesInfo' => $speciesInfo,
-            'producers'   => $producers,
-        ];
+        return $this->hsHeading?->value;
     }
 }

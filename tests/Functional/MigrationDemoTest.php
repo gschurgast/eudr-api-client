@@ -134,6 +134,7 @@ final class MigrationDemoTest extends TestCase
                             /** @var array{operatorType: string, statement: StatementArray} $payload */
                             $dto  = DdsWsdlDtoFactory::submitDds($payload);
                             $resp = $client->getClient(ModeEnum::SUBMISSION)->submitDds($dto);
+
                             $this->assertIsString($resp->ddsIdentifier, 'Le champ ddsIdentifier doit être une chaîne de caractères');
                             $this->assertMatchesRegularExpression(
                                 '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
