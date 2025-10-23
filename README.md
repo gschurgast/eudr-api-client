@@ -16,7 +16,7 @@ for consistent array<->object transformations instead of ad‑hoc toArray/fromSo
     - Responses: TestEchoResponse, SubmitDdsResponse, AmendDdsResponse, RetractDdsResponse, GetDdsInfoResponse, GetStatementByIdentifiersResponse, GetReferenceDdsResponse
     - Typed sub-objects in src/Dto/Type (StatementType, CommodityType, OperatorType, StatusType, ...)
 - A DTO factory for building request objects from associative arrays: src/Factory/DdsWsdlDtoFactory
-- Functional tests using PHPUnit: tests/Functional/MigrationDemoTest.php
+- Functional tests using PHPUnit: tests/Functional/DemoTest.php
 
 ## Requirements
 
@@ -26,23 +26,23 @@ for consistent array<->object transformations instead of ad‑hoc toArray/fromSo
 
 ## Install
 
-- composer install
+- make init
 
-## Running tests
+## Running tests or acceptance tests
 
-- composer run test:functional
+- Edit your .env file to provide your credentials.
+
+```
+EUDR_USERNAME=your-username
+EUDR_PASSWORD=your-password
+```
+- make test
 
 ## Create an EUDR client
 
 - Choose the environment via src\Enum\EnvironmentEnum (ACCEPTANCE or PRODUCTION).
 - Provide your credentials via environment variables (recommended for local dev put them in a .env file at the project root):
 
-Example .env
-
-```
-EUDR_USERNAME=your-username
-EUDR_PASSWORD=your-password
-```
 
 - Instantiate the high-level client and pass credentials read from env:
 
@@ -129,7 +129,7 @@ $getReferenceDDSResponse = $client->getClient(ModeEnum::RETRIEVAL)->getReference
 
 ## Functional tests
 
-- tests/Functional/MigrationDemoTest.php builds DTOs from fixtures (tests/fixtures/payloads.yaml) and can perform real calls when credentials are valid.
+- tests/Functional/DemoTest.php builds DTOs from fixtures (tests/fixtures/payloads.yaml) and can perform real calls when credentials are valid.
 - Use composer run test:functional to execute the suite.
 
 ## Notes

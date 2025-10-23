@@ -12,6 +12,10 @@ COMPOSER = $(PHP) composer run
 start: docker-up ## Start the project
 stop: docker-down ## Stop the project
 restart: docker-restart ## Restart the project
+init: docker-build docker-up
+
+docker-build:
+	@$(DOCKER_COMPOSE) build
 
 docker-up: ## Start the docker hub in detached mode (no logs)
 	@$(DOCKER_COMPOSE) up --detach
