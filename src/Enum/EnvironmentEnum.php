@@ -29,9 +29,9 @@ enum EnvironmentEnum: string
      */
     public function getUrl(string $path): string
     {
-        $path = '/'.ltrim($path, '/');
+        $path = '/' . ltrim($path, '/');
 
-        return $this->baseHost().$path;
+        return $this->baseHost() . $path;
     }
 
     /**

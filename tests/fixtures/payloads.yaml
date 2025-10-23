@@ -101,7 +101,7 @@ submission:
 
 retrieval:
   getDdsInfo:
-    identifier: "8f14e45f-ea9e-4a19-9d7f-13cf66ac65c7"
+    identifier: "ec038b3c-bb2b-4965-8341-3765213af912"
   getDdsInfoByInternalReferenceNumber:
     identifier: "DLE20/362"
   getStatementByIdentifiers:

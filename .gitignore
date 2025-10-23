@@ -4,3 +4,4 @@
 .env
 /var/
 /.php-cs-fixer.cache
+/.build/.php-cs-fixer.cache

@@ -14,9 +14,9 @@ use src\Services\EudrSubmissionClient;
  */
 enum ModeEnum: string
 {
-    case ECHO = 'echo';
+    case ECHO       = 'echo';
     case SUBMISSION = 'submission';
-    case RETRIEVAL = 'retrieval';
+    case RETRIEVAL  = 'retrieval';
 
     /**
      * Returns the url for the selected mode.
@@ -24,18 +24,18 @@ enum ModeEnum: string
     public function geturl(): string
     {
         return match ($this) {
-            self::ECHO => '/tracesnt/ws/EudrEchoService?wsdl',
+            self::ECHO       => '/tracesnt/ws/EudrEchoService?wsdl',
             self::SUBMISSION => '/tracesnt/ws/EUDRSubmissionServiceV2?wsdl',
-            self::RETRIEVAL => '/tracesnt/ws/EUDRRetrievalServiceV2?wsdl',
+            self::RETRIEVAL  => '/tracesnt/ws/EUDRRetrievalServiceV2?wsdl',
         };
     }
 
     public function getWebServiceClient(): BaseSoapService
     {
         return match ($this) {
-            self::ECHO => new EudrEchoClient(),
+            self::ECHO       => new EudrEchoClient(),
             self::SUBMISSION => new EudrSubmissionClient(),
-            self::RETRIEVAL => new EudrRetrievalClient(),
+            self::RETRIEVAL  => new EudrRetrievalClient(),
         };
     }
 }

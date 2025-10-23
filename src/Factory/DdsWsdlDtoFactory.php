@@ -2,28 +2,28 @@
 
 namespace src\Factory;
 
+use src\Dto\AmendDdsRequest;
+use src\Dto\GetDdsInfoByInternalReferenceNumberRequest;
+use src\Dto\GetDdsInfoRequest;
+use src\Dto\GetReferenceDdsRequest;
+use src\Dto\GetStatementByIdentifiersRequest;
+use src\Dto\RetractDdsRequest;
+use src\Dto\SubmitDdsRequest;
+use src\Dto\TestEchoRequest;
+use src\Dto\Type\CommodityType;
+use src\Dto\Type\DescriptorsType;
+use src\Dto\Type\GoodsMeasureType;
+use src\Dto\Type\OperatorNameAndAddressType;
+use src\Dto\Type\OperatorType;
+use src\Dto\Type\ProducerType;
+use src\Dto\Type\SpeciesInfoType;
+use src\Dto\Type\StatementType;
 use src\Enum\OperatorTypeEnum;
 use src\Enum\WoodHeadingEnum;
-use src\Request\AmendDdsRequest;
-use src\Request\GetDdsInfoByInternalReferenceNumberRequest;
-use src\Request\GetDdsInfoRequest;
-use src\Request\GetReferenceDdsRequest;
-use src\Request\GetStatementByIdentifiersRequest;
-use src\Request\RetractDdsRequest;
-use src\Request\SubmitDdsRequest;
-use src\Request\TestEchoRequest;
-use src\Request\Type\CommodityType;
-use src\Request\Type\DescriptorsType;
-use src\Request\Type\GoodsMeasureType;
-use src\Request\Type\OperatorNameAndAddressType;
-use src\Request\Type\OperatorType;
-use src\Request\Type\ProducerType;
-use src\Request\Type\SpeciesInfoType;
-use src\Request\Type\StatementType;
 use Webmozart\Assert\Assert;
 
 /**
- * @phpstan-import-type StatementArray from \src\Request\Type\StatementType
+ * @phpstan-import-type StatementArray from \src\Dto\Type\StatementType
  */
 class DdsWsdlDtoFactory
 {
@@ -47,8 +47,8 @@ class DdsWsdlDtoFactory
     public static function submitDds(array $data): SubmitDdsRequest
     {
         $dto               = new SubmitDdsRequest();
-        $dto->operatorType = OperatorTypeEnum::tryFrom($data['operatorType']) ?? throw new \InvalidArgumentException('Invalid operatorType');;
-        $dto->statement = self::buildStatementType($data['statement']);
+        $dto->operatorType = OperatorTypeEnum::tryFrom($data['operatorType']) ?? throw new \InvalidArgumentException('Invalid operatorType');
+        $dto->statement    = self::buildStatementType($data['statement']);
 
         return $dto;
     }
@@ -138,7 +138,7 @@ class DdsWsdlDtoFactory
         $statement->countryOfActivity       = $statementData['countryOfActivity'];
         $statement->borderCrossCountry      = $statementData['borderCrossCountry'];
         $statement->comment                 = $statementData['comment'];
-        $statement->geoLocationConfidential = (bool)($statementData['geoLocationConfidential'] ?? false);
+        $statement->geoLocationConfidential = (bool) ($statementData['geoLocationConfidential'] ?? false);
 
         // 3️⃣ Commodities (liste)
         foreach ($statementData['commodities'] ?? [] as $commodityData) {
@@ -150,12 +150,12 @@ class DdsWsdlDtoFactory
                 $desc->descriptionOfGoods = $commodityData['descriptors']['descriptionOfGoods'] ?? null;
 
                 if (isset($commodityData['descriptors']['goodsMeasure'])) {
-                    $gm                 = new GoodsMeasureType();
-                    $gm->netWeight      = isset($commodityData['descriptors']['goodsMeasure']['netWeight'])
-                        ? (float)$commodityData['descriptors']['goodsMeasure']['netWeight']
+                    $gm            = new GoodsMeasureType();
+                    $gm->netWeight = isset($commodityData['descriptors']['goodsMeasure']['netWeight'])
+                        ? (float) $commodityData['descriptors']['goodsMeasure']['netWeight']
                         : null;
-                    $gm->volume         = isset($commodityData['descriptors']['goodsMeasure']['volume'])
-                        ? (float)$commodityData['descriptors']['goodsMeasure']['volume']
+                    $gm->volume = isset($commodityData['descriptors']['goodsMeasure']['volume'])
+                        ? (float) $commodityData['descriptors']['goodsMeasure']['volume']
                         : null;
                     $desc->goodsMeasure = $gm;
                 }
@@ -195,10 +195,10 @@ class DdsWsdlDtoFactory
                     $geo = $producerData['geometryGeojson'];
 
                     // Si c’est un tableau, on l’encode en JSON purCom
-                    if (is_array($geo)) {
-                        $geo = json_encode($geo, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                    if (\is_array($geo)) {
+                        $geo = json_encode($geo, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
                     } // Si c’est du JSON brut valide, on le garde tel quel
-                    elseif (is_string($geo) && null !== json_decode($geo)) {
+                    elseif (\is_string($geo) && json_decode($geo) !== null) {
                         // ne rien faire
                     } else {
                         throw new \RuntimeException('Invalid geometryGeojson format');

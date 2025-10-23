@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Request;
+namespace src\Dto;
 
 class TestEchoRequest
 {

@@ -10,6 +10,5 @@ namespace src\Enum;
 enum OperatorTypeEnum: string
 {
     case OPERATOR = 'OPERATOR';
-    case TRADER = 'TRADER';
-
+    case TRADER   = 'TRADER';
 }

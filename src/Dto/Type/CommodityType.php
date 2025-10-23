@@ -1,22 +1,26 @@
 <?php
 
-namespace src\Request\Type;
+namespace src\Dto\Type;
 
 use src\Enum\WoodHeadingEnum;
 
 class CommodityType
 {
+    public ?int $position;
+
     public ?DescriptorsType $descriptors = null;
+
     public ?WoodHeadingEnum $hsHeading = null;
+
     /**
      * @var SpeciesInfoType[]|null
      */
     public ?array $speciesInfo = null; // array of SpeciesInfoType
+
     /**
      * @var ProducerType[]|null
      */
     public ?array $producers = null; // array of ProducerType
-
 
     /**
      * @return array<string, mixed>

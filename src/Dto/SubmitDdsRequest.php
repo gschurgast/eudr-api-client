@@ -1,9 +1,9 @@
 <?php
 
-namespace src\Request;
+namespace src\Dto;
 
+use src\Dto\Type\StatementType;
 use src\Enum\OperatorTypeEnum;
-use src\Request\Type\StatementType;
 
 /**
  * @phpstan-import-type StatementArray from Type\StatementType
@@ -11,6 +11,7 @@ use src\Request\Type\StatementType;
 class SubmitDdsRequest
 {
     public OperatorTypeEnum $operatorType;
+
     public StatementType $statement;
 
     /**

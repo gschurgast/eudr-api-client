@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace src\Services;
 
+use src\Dto\TestEchoRequest;
+use src\Dto\TestEchoResponse;
 use src\Enum\ModeEnum;
-use src\Request\TestEchoRequest;
 
 class EudrEchoClient extends BaseSoapService
 {
     /** Example wrapper for the testEcho operation (signature depends on WSDL). */
-    public function testEcho(TestEchoRequest $request): mixed
+    public function testEcho(TestEchoRequest $request): TestEchoResponse
     {
-        return $this->buildSoapClient()->__soapCall('testEcho', [$request]);
+        $raw = $this->buildSoapClient()->__soapCall('testEcho', [$request]);
+
+        return TestEchoResponse::fromSoap($raw);
     }
 
     protected function getMode(): ModeEnum

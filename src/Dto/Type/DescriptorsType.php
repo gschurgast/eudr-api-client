@@ -1,9 +1,10 @@
 <?php
 
-namespace src\Request\Type;
+namespace src\Dto\Type;
 
 class DescriptorsType
 {
     public ?string $descriptionOfGoods = null;
+
     public ?GoodsMeasureType $goodsMeasure = null;
 }

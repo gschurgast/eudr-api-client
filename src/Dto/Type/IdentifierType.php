@@ -1,9 +1,10 @@
 <?php
 
-namespace src\Request\Type;
+namespace src\Dto\Type;
 
 class IdentifierType
 {
     public string $identifierType;
+
     public string $identifierValue;
 }

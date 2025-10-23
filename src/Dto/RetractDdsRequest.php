@@ -1,9 +1,10 @@
 <?php
 
-namespace src\Request;
+namespace src\Dto;
 
 class RetractDdsRequest
 {
     public string $ddsIdentifier;
+
     public string $reason;
 }

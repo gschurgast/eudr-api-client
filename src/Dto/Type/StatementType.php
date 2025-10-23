@@ -1,7 +1,6 @@
 <?php
 
-namespace src\Request\Type;
-
+namespace src\Dto\Type;
 
 /**
  * @phpstan-type StatementArray array{
@@ -18,15 +17,22 @@ namespace src\Request\Type;
 class StatementType
 {
     public string $internalReferenceNumber;
+
     public string $activityType;
+
     public ?string $comment = null;
+
     public ?string $countryOfActivity = null;
+
     public ?string $borderCrossCountry = null;
+
     /**
      * @var CommodityType[]|null
      */
     public ?array $commodities = null; // array of CommodityType
+
     public ?OperatorType $operator = null;
+
     public bool $geoLocationConfidential = false;
 
     /**
@@ -42,11 +48,11 @@ class StatementType
         $result = [
             'internalReferenceNumber' => $this->internalReferenceNumber,
             'activityType'            => $this->activityType,
-            'comment'                 => (string)($this->comment ?? ''),
-            'countryOfActivity'       => (string)($this->countryOfActivity ?? ''),
-            'borderCrossCountry'      => (string)($this->borderCrossCountry ?? ''),
+            'comment'                 => (string) ($this->comment ?? ''),
+            'countryOfActivity'       => (string) ($this->countryOfActivity ?? ''),
+            'borderCrossCountry'      => (string) ($this->borderCrossCountry ?? ''),
             'commodities'             => $commodities,
-            'geoLocationConfidential' => (bool)$this->geoLocationConfidential,
+            'geoLocationConfidential' => (bool) $this->geoLocationConfidential,
         ];
 
         if ($this->operator instanceof OperatorType) {

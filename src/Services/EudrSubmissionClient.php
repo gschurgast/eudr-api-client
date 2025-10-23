@@ -4,26 +4,35 @@ declare(strict_types=1);
 
 namespace src\Services;
 
+use src\Dto\AmendDdsRequest;
+use src\Dto\AmendDdsResponse;
+use src\Dto\RetractDdsRequest;
+use src\Dto\RetractDdsResponse;
+use src\Dto\SubmitDdsRequest;
+use src\Dto\SubmitDdsResponse;
 use src\Enum\ModeEnum;
-use src\Request\AmendDdsRequest;
-use src\Request\RetractDdsRequest;
-use src\Request\SubmitDdsRequest;
 
 class EudrSubmissionClient extends BaseSoapService
 {
-    public function submitDds(SubmitDdsRequest $request): mixed
+    public function submitDds(SubmitDdsRequest $request): SubmitDdsResponse
     {
-        return $this->buildSoapClient()->__soapCall('submitDds', [$request->toArray()]);
+        $raw = $this->buildSoapClient()->__soapCall('submitDds', [$request->toArray()]);
+
+        return SubmitDdsResponse::fromSoap($raw);
     }
 
-    public function amendDds(AmendDdsRequest $request): mixed
+    public function amendDds(AmendDdsRequest $request): AmendDdsResponse
     {
-        return $this->buildSoapClient()->__soapCall('amendDds', [$request->toArray()]);
+        $raw = $this->buildSoapClient()->__soapCall('amendDds', [$request->toArray()]);
+
+        return AmendDdsResponse::fromSoap($raw);
     }
 
-    public function retractDds(RetractDdsRequest $request): mixed
+    public function retractDds(RetractDdsRequest $request): RetractDdsResponse
     {
-        return $this->buildSoapClient()->__soapCall('retractDds', [$request]);
+        $raw = $this->buildSoapClient()->__soapCall('retractDds', [$request]);
+
+        return RetractDdsResponse::fromSoap($raw);
     }
 
     public function getMode(): ModeEnum
