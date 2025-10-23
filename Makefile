@@ -21,9 +21,6 @@ docker-down: ## Stop the docker hub
 
 docker-restart: docker-down docker-up  ## STOP AND RESTART
 
-test-demo:
-	@$(COMPOSER) demo:migration
-
 phpstan:
 	@$(COMPOSER) dev:phpstan
 

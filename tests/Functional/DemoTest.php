@@ -15,14 +15,38 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * @phpstan-import-type StatementArray from \src\Dto\Type\StatementType
  */
-final class MigrationDemoTest extends TestCase
+final class DemoTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
         // Ensure Composer autoload is available when running without phpunit.xml bootstrap
-        $autoload = \dirname(__DIR__, 2) . '/vendor/autoload.php';
+        $root     = \dirname(__DIR__, 2);
+        $autoload = $root . '/vendor/autoload.php';
         if (file_exists($autoload)) {
             require_once $autoload;
+        }
+
+        // Load .env credentials for functional online calls, if present
+        $envFile = $root . '/.env';
+        if (file_exists($envFile) && is_readable($envFile)) {
+            $lines = file($envFile, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES) ?: [];
+            foreach ($lines as $line) {
+                // Strip comments
+                if (str_starts_with(trim($line), '#')) {
+                    continue;
+                }
+                // Match KEY=VALUE (supports quoted values)
+                if (preg_match('/^([A-Z0-9_]+)\s*=\s*(.*)$/', $line, $m)) {
+                    $key = $m[1];
+                    $val = trim($m[2]);
+                    if ((str_starts_with($val, '"') && str_ends_with($val, '"')) || (str_starts_with($val, "'") && str_ends_with($val, "'"))) {
+                        $val = substr($val, 1, -1);
+                    }
+                    $_ENV[$key]    = $val;
+                    $_SERVER[$key] = $val;
+                    putenv($key . '=' . $val);
+                }
+            }
         }
     }
 
@@ -109,8 +133,16 @@ final class MigrationDemoTest extends TestCase
         /** @var array<string, array<string, array<string, mixed>>> $fixtures */
         $fixtures = Yaml::parseFile($fixturesPath) ?? [];
 
-        $env           = EnvironmentEnum::ACCEPTANCE;
-        $client        = new EudrClient('n00hfgop', 'xlOPMeepcGgBnKkDWBbygrPeBi2ajSHpikqzJCsW', $env);
+        $env = EnvironmentEnum::ACCEPTANCE;
+
+        $username = getenv('EUDR_USERNAME') ?: ($_ENV['EUDR_USERNAME'] ?? null);
+        $password = getenv('EUDR_PASSWORD') ?: ($_ENV['EUDR_PASSWORD'] ?? null);
+        if (!$username || !$password) {
+            $this->markTestSkipped('EUDR_USERNAME and/or EUDR_PASSWORD are not set. Define them in .env or environment to run online functional calls.');
+        }
+
+        $client = new EudrClient($username, $password, $env);
+
         $ddsIdentifier = null;
         foreach ($fixtures as $section => $sectionFixtures) {
             foreach ($sectionFixtures as $op => $payload) {
