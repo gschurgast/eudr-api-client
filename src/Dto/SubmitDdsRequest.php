@@ -2,10 +2,9 @@
 
 namespace src\Dto;
 
-use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\Accessor;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
-use JMS\Serializer\Annotation\VirtualProperty;
 use src\Dto\Type\StatementType;
 use src\Enum\OperatorTypeEnum;
 use src\Serializer\JmsSerializationTrait;
@@ -14,16 +13,20 @@ class SubmitDdsRequest
 {
     use JmsSerializationTrait;
 
-    #[Exclude]
-    public OperatorTypeEnum $operatorType;
+    #[SerializedName('operatorType')]
+    #[Type('string')]
+    #[Accessor(getter: 'getOperatorTypeValue', setter: 'setOperatorTypeValue')]
+    public ?OperatorTypeEnum $operatorType = OperatorTypeEnum::OPERATOR;
 
     public StatementType $statement;
 
-    #[VirtualProperty]
-    #[SerializedName('operatorType')]
-    #[Type('string')]
-    public function getOperatorTypeValue(): string
+    public function getOperatorTypeValue(): ?string
     {
-        return $this->operatorType->value;
+        return $this->operatorType?->value;
+    }
+
+    public function setOperatorTypeValue(?string $value): void
+    {
+        $this->operatorType = $value !== null ? (OperatorTypeEnum::tryFrom($value) ?? OperatorTypeEnum::OPERATOR) : null;
     }
 }

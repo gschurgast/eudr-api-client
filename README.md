@@ -15,7 +15,6 @@ for consistent array<->object transformations instead of ad‑hoc toArray/fromSo
     - Requests: SubmitDdsRequest, AmendDdsRequest, GetDdsInfoRequest, GetStatementByIdentifiersRequest, GetReferenceDdsRequest, etc.
     - Responses: TestEchoResponse, SubmitDdsResponse, AmendDdsResponse, RetractDdsResponse, GetDdsInfoResponse, GetStatementByIdentifiersResponse, GetReferenceDdsResponse
     - Typed sub-objects in src/Dto/Type (StatementType, CommodityType, OperatorType, StatusType, ...)
-- A DTO factory for building request objects from associative arrays: src/Factory/DdsWsdlDtoFactory
 - Functional tests using PHPUnit: tests/Functional/DemoTest.php
 
 ## Requirements

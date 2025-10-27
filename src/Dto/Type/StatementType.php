@@ -2,12 +2,16 @@
 
 namespace src\Dto\Type;
 
+use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Type;
+use JMS\Serializer\Annotation\VirtualProperty;
+use src\Enum\ActivityTypeEnum;
 
 /**
  * @phpstan-type StatementArray array{
  *     internalReferenceNumber?: string,
- *     activityType: string,
+ *     activityType: ActivityTypeEnum,
  *     countryOfActivity: string,
  *     borderCrossCountry: string,
  *     comment: string,
@@ -20,7 +24,8 @@ class StatementType
 {
     public string $internalReferenceNumber;
 
-    public string $activityType;
+    #[Exclude]
+    public ActivityTypeEnum $activityType = ActivityTypeEnum::IMPORT;
 
     public ?string $comment = null;
 
@@ -35,4 +40,12 @@ class StatementType
     public ?OperatorType $operator = null;
 
     public bool $geoLocationConfidential = false;
+
+    #[VirtualProperty]
+    #[SerializedName('activityType')]
+    #[Type('string')]
+    public function getActivityTypeValue(): ?string
+    {
+        return $this->activityType->value;
+    }
 }
