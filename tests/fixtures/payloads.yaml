@@ -4,7 +4,7 @@ echo:
 
 submission:
   submitDds:
-    operatorType: "OPERATOR"
+    operatorType: "TRADER"
     statement:
       internalReferenceNumber: "DLE20/362"
       activityType: "IMPORT"
@@ -19,28 +19,28 @@ submission:
               volume: 4
           hsHeading: "4401"
           speciesInfo:
-            scientificName: "Fagus silvatica"
-            commonName: "BUKVA OBIČNA"
+            - scientificName: "Fagus silvatica"
+              commonName: "BUKVA OBIČNA"
           producers:
-            country: "HR"
-            name: "GreenWood Solutions Ltd."
-            geometryGeojson:
-              type: FeatureCollection
-              features:
-                - type: Feature
-                  geometry:
-                    type: Polygon
-                    coordinates:
-                      - - [ -1.1864, 6.5244 ]
-                        - [ -1.1874, 6.5244 ]
-                        - [ -1.1874, 6.5344 ]
-                        - [ -1.1864, 6.5344 ]
-                        - [ -1.1864, 6.5244 ]
-                  properties:
-                    gjid: "580"
-                    godina: 2016
-                    povrsina: 31.24
-                    oznaka: "42 a"
+            - country: "HR"
+              name: "GreenWood Solutions Ltd."
+              geometryGeojson:
+                type: FeatureCollection
+                features:
+                  - type: Feature
+                    geometry:
+                      type: Polygon
+                      coordinates:
+                        - - [ -1.1864, 6.5244 ]
+                          - [ -1.1874, 6.5244 ]
+                          - [ -1.1874, 6.5344 ]
+                          - [ -1.1864, 6.5344 ]
+                          - [ -1.1864, 6.5244 ]
+                    properties:
+                      gjid: "580"
+                      godina: 2016
+                      povrsina: 31.24
+                      oznaka: "42 a"
       operator:
         nameAndAddress:
           name: "Vente-unique.com"
@@ -65,28 +65,28 @@ submission:
               volume: 4
           hsHeading: "4401"
           speciesInfo:
-            scientificName: "Fagus silvatica"
-            commonName: "BUKVA OBIČNA"
+            - scientificName: "Fagus silvatica"
+              commonName: "BUKVA OBIČNA"
           producers:
-            country: "HR"
-            name: "GreenWood Solutions Ltd."
-            geometryGeojson:
-              type: FeatureCollection
-              features:
-                - type: Feature
-                  geometry:
-                    type: Polygon
-                    coordinates:
-                      - - [ -1.1864, 6.5244 ]
-                        - [ -1.1874, 6.5244 ]
-                        - [ -1.1874, 6.5344 ]
-                        - [ -1.1864, 6.5344 ]
-                        - [ -1.1864, 6.5244 ]
-                  properties:
-                    gjid: "580"
-                    godina: 2016
-                    povrsina": 31.24
-                    oznaka": "42 a"
+            - country: "HR"
+              name: "GreenWood Solutions Ltd."
+              geometryGeojson:
+                type: FeatureCollection
+                features:
+                  - type: Feature
+                    geometry:
+                      type: Polygon
+                      coordinates:
+                        - - [ -1.1864, 6.5244 ]
+                          - [ -1.1874, 6.5244 ]
+                          - [ -1.1874, 6.5344 ]
+                          - [ -1.1864, 6.5344 ]
+                          - [ -1.1864, 6.5244 ]
+                    properties:
+                      gjid: "580"
+                      godina: 2016
+                      povrsina: 31.24
+                      oznaka: "42 a"
       operator:
         nameAndAddress:
           name: "Vente-unique.com"

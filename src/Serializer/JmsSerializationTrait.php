@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace src\Serializer;
 
 use JMS\Serializer\Serializer;
+use Webmozart\Assert\Assert;
 
 trait JmsSerializationTrait
 {
@@ -28,10 +29,12 @@ trait JmsSerializationTrait
      */
     public static function fromSoap(mixed $soapResult): self
     {
-        $data = self::serializer()->toArray($soapResult);
+        $json = json_encode($soapResult);
+        Assert::string($json);
 
+        // 🧠 Désérialiser le JSON vers le DTO
         /** @var self $obj */
-        $obj = self::serializer()->fromArray($data, self::class);
+        $obj = self::serializer()->deserialize($json, self::class, 'json');
 
         return $obj;
     }
