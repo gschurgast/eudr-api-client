@@ -33,6 +33,10 @@ class CommodityType
 
     public function setHsHeadingValue(?string $value): void
     {
-        $this->hsHeading = $value !== null ? (WoodHeadingEnum::tryFrom($value) ?? WoodHeadingEnum::DENSIFIED_WOOD_4413) : null;
+        if ($value === null) {
+            return;
+        }
+
+        $this->hsHeading = WoodHeadingEnum::tryFrom($value);
     }
 }

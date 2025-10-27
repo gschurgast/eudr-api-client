@@ -47,6 +47,8 @@ class GeoJsonHandler implements SubscribingHandlerInterface
         $serializer = SerializerFactory::get();
 
         if ($data instanceof GeometryGeojsonType) {
+            $data->validate();
+
             $data = $serializer->toArray($data);
         }
 
@@ -73,6 +75,10 @@ class GeoJsonHandler implements SubscribingHandlerInterface
         }
 
         if (\is_array($data)) {
+            $geometryGeojson = $serializer->fromArray($data, GeometryGeojsonType::class);
+            Assert::isInstanceOf($geometryGeojson, GeometryGeojsonType::class);
+            $geometryGeojson->validate();
+
             return $serializer->fromArray($data, GeometryGeojsonType::class);
         }
 

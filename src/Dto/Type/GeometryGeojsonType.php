@@ -12,4 +12,11 @@ class GeometryGeojsonType
     /** @var array<int, FeatureType> */
     #[Type('array<src\\Dto\\Type\\FeatureType>')]
     public array $features = [];
+
+    public function validate(): void
+    {
+        foreach ($this->features as $feature) {
+            $feature->geometry->validate();
+        }
+    }
 }

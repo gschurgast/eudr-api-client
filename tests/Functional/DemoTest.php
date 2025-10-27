@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Functional;
 
+use JMS\Serializer\Serializer;
 use PHPUnit\Framework\TestCase;
 use src\Dto\AmendDdsRequest;
 use src\Dto\GetDdsInfoByInternalReferenceNumberRequest;
@@ -24,7 +25,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 final class DemoTest extends TestCase
 {
-    private \JMS\Serializer\Serializer $serializer;
+    private Serializer $serializer;
 
     public static function setUpBeforeClass(): void
     {
