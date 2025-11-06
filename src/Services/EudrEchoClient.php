@@ -13,7 +13,7 @@ class EudrEchoClient extends BaseSoapService
     /** Example wrapper for the testEcho operation (signature depends on WSDL). */
     public function testEcho(TestEchoRequest $request): TestEchoResponse
     {
-        $raw = $this->buildSoapClient()->__soapCall('testEcho', [$request]);
+        $raw = $this->sendRequest('testEcho', [$request]);
 
         return TestEchoResponse::fromSoap($raw);
     }

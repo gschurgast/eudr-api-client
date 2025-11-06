@@ -12,6 +12,6 @@ class FeatureType
     #[Type('src\\Dto\\Type\\GeometryType')]
     public GeometryType $geometry;
 
-    #[Type('src\\Dto\\Type\\PropertiesType')]
-    public PropertiesType $properties;
+    #[Type('array')]
+    public array $properties;
 }

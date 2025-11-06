@@ -18,28 +18,28 @@ class EudrRetrievalClient extends BaseSoapService
 {
     public function getDdsInfo(GetDdsInfoRequest $request): GetDdsInfoResponse
     {
-        $raw = $this->buildSoapClient()->__soapCall('getDdsInfo', [$request]);
+        $raw = $this->sendRequest('getDdsInfo', [$request]);
 
         return GetDdsInfoResponse::fromSoap($raw->statementInfo[0]);
     }
 
     public function getDdsInfoByInternalReferenceNumber(GetDdsInfoByInternalReferenceNumberRequest $request): GetDdsInfoByInternalReferenceNumberResponse
     {
-        $raw = $this->buildSoapClient()->__soapCall('getDdsInfoByInternalReferenceNumber', [$request->identifier]);
+        $raw = $this->sendRequest('getDdsInfoByInternalReferenceNumber', [$request->identifier]);
 
         return GetDdsInfoByInternalReferenceNumberResponse::fromSoap($raw);
     }
 
     public function getStatementByIdentifiers(GetStatementByIdentifiersRequest $request): GetStatementByIdentifiersResponse
     {
-        $raw = $this->buildSoapClient()->__soapCall('getStatementByIdentifiers', [$request]);
+        $raw = $this->sendRequest('getStatementByIdentifiers', [$request]);
 
         return GetStatementByIdentifiersResponse::fromSoap($raw->statement);
     }
 
     public function getReferencedDds(GetReferenceDdsRequest $request): GetReferenceDdsResponse
     {
-        $raw = $this->buildSoapClient()->__soapCall('getReferencedDds', [$request]);
+        $raw = $this->sendRequest('getReferencedDds', [$request]);
 
         return GetReferenceDdsResponse::fromSoap($raw);
     }

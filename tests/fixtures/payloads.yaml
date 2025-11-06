@@ -4,19 +4,18 @@ echo:
 
 submission:
   submitDds:
-    operatorType: "TRADER"
+    operatorType: "Ma bite"
     statement:
-      internalReferenceNumber: "DLE20/362"
+      internalReferenceNumber: "FR 102"
       activityType: "IMPORT"
       countryOfActivity: 'FR'
-      borderCrossCountry: 'DE'
       comment: "Minimal test scenario"
       commodities:
         - descriptors:
             descriptionOfGoods: "Test wood products"
             goodsMeasure:
-              netWeight: 5
               volume: 4
+              netWeight: 5
           hsHeading: "4401"
           speciesInfo:
             - scientificName: "Fagus silvatica"
@@ -42,12 +41,15 @@ submission:
                       povrsina: 31.24
                       oznaka: "42 a"
       operator:
-        nameAndAddress:
+        referenceNumber:
+          identifierType: "eori"
+          identifierValue: "FR75015"
+        operatorAddress:
           name: "Vente-unique.com"
           country: "FR"
-          address: "9 RUE JACQUARD 93310 LE PRE SAINT GERVAIS"
-        email: "info@vente-unique.com"
-        phone: "01 23 45 67 89"
+          street: "9 BIS RUE JACQUARD"
+          postalCode: "93310"
+          city: "LE PRE SAINT GERVAIS"
       geoLocationConfidential: false
   amendDds:
     ddsIdentifier: "ec038b3c-bb2b-4965-8341-3765213af912"
@@ -83,15 +85,18 @@ submission:
                           - [ -1.1864, 6.5344 ]
                           - [ -1.1864, 6.5244 ]
                     properties:
-                      gjid: "580"
-                      godina: 2016
-                      povrsina: 31.24
-                      oznaka: "42 a"
+                      x: "a"
+                      y: "b"
       operator:
-        nameAndAddress:
+        referenceNumber:
+          identifierType: "eori"
+          identifierValue: "CHANGE_ME_EORI"
+        operatorAddress:
           name: "Vente-unique.com"
           country: "FR"
-          address: "9 BIS RUE JACQUARD 93310 LE PRE SAINT GERVAIS"
+          street: "9 BIS RUE JACQUARD"
+          postalCode: "93310"
+          city: "LE PRE SAINT GERVAIS"
         email: "info@vente-unique.com"
         phone: "01 23 45 67 89"
       geoLocationConfidential: false

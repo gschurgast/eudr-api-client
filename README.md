@@ -1,8 +1,7 @@
 # EUDR API SOAP Client (PHP)
 
 This repository provides a minimal, typed PHP client for the European Union Deforestation Regulation (EUDR) SOAP services.
-It exposes small service classes, request/response DTOs, and a functional PHPUnit test. Internally it uses JMS Serializer
-for consistent array<->object transformations instead of ad‑hoc toArray/fromSoap code.
+It exposes small service classes, request/response DTOs, and a functional PHPUnit test.
 
 ## What's included
 
@@ -11,7 +10,7 @@ for consistent array<->object transformations instead of ad‑hoc toArray/fromSo
     - EudrSubmissionClient
     - EudrRetrievalClient
     - EudrClient facade to access the right service by ModeEnum
-- Request/Response DTOs (src/Dto) with JMS Serializer attributes
+- Request/Response DTOs (src/Dto)
     - Requests: SubmitDdsRequest, AmendDdsRequest, GetDdsInfoRequest, GetStatementByIdentifiersRequest, GetReferenceDdsRequest, etc.
     - Responses: TestEchoResponse, SubmitDdsResponse, AmendDdsResponse, RetractDdsResponse, GetDdsInfoResponse, GetStatementByIdentifiersResponse, GetReferenceDdsResponse
     - Typed sub-objects in src/Dto/Type (StatementType, CommodityType, OperatorType, StatusType, ...)

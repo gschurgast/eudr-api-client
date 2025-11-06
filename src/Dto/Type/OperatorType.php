@@ -2,11 +2,16 @@
 
 namespace src\Dto\Type;
 
+use JMS\Serializer\Annotation\Type;
+
 class OperatorType
 {
-    public ?OperatorNameAndAddressType $nameAndAddress = null;
+    public ?EconomicOperatorReferenceNumberType $referenceNumber = null;
+
+    public ?OperatorNameAndAddressType $operatorAddress = null;
 
     public ?string $email = null;
 
     public ?string $phone = null;
+
 }

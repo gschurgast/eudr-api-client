@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace src\Services;
 
 use RobRichards\WsePhp\WSSESoap;
+use src\Dto\EudrRequestInterface;
 use src\Enum\EnvironmentEnum;
 use src\Enum\ModeEnum;
 use Webmozart\Assert\Assert;
@@ -71,8 +72,8 @@ abstract class BaseSoapService
         ];
 
         if (!$this->environment->getSslVerify()) {
-            $ctx = stream_context_create([
-                'ssl' => [
+            $ctx                        = stream_context_create([
+                'ssl'  => [
                     'verify_peer'       => false,
                     'verify_peer_name'  => false,
                     'allow_self_signed' => true,
@@ -139,6 +140,40 @@ abstract class BaseSoapService
             new \SoapVar($fullXmlHeader, \XSD_ANYXML),
             true
         );
+    }
+
+    public function sendRequest(string $method, array $requests): mixed
+    {
+        $client = $this->buildSoapClient();
+
+        try {
+            // Create the request XML before actually calling the service
+            $xml = $client->__getFunctions(); // Lists available methods (optional)
+            // You can temporarily make a dry run by calling __soapCall() inside a try/catch
+
+            $response = $client->__soapCall($method, $requests);
+
+            // Debug: dump SOAP request and response
+            var_dump([
+                'request_headers' => $client->__getLastRequestHeaders(),
+                'request_xml' => $client->__getLastRequest(),
+                'response_headers' => $client->__getLastResponseHeaders(),
+                'response_xml' => $client->__getLastResponse(),
+            ]);
+
+            return $response;
+
+        } catch (\SoapFault $e) {
+            // Show detailed SOAP request/response when error occurs
+            var_dump([
+                'request_headers' => $client->__getLastRequestHeaders(),
+                'request_xml' => $client->__getLastRequest(),
+                'response_headers' => $client->__getLastResponseHeaders(),
+                'response_xml' => $client->__getLastResponse(),
+            ]);
+
+            throw $e;
+        }
     }
 
     abstract protected function getMode(): ModeEnum;

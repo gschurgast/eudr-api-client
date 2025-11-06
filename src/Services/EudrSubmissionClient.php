@@ -16,7 +16,7 @@ class EudrSubmissionClient extends BaseSoapService
 {
     public function submitDds(SubmitDdsRequest $request): SubmitDdsResponse
     {
-        $raw = $this->buildSoapClient()->__soapCall('submitDds', [$request->toArray()]);
+        $raw = $this->sendRequest('submitDds', [$request->toArray()]);
 
         return SubmitDdsResponse::fromSoap($raw);
     }

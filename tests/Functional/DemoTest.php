@@ -27,6 +27,8 @@ final class DemoTest extends TestCase
 {
     private Serializer $serializer;
 
+    private const PLACEHOLDER_OPERATOR_EORI = 'CHANGE_ME_EORI';
+
     public static function setUpBeforeClass(): void
     {
         // existing code will follow
@@ -110,6 +112,36 @@ final class DemoTest extends TestCase
         return $payload;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
+    private function applyOperatorEoriFromEnv(array $payload): array
+    {
+        $envEori = getenv('EUDR_OPERATOR_EORI') ?: ($_ENV['EUDR_OPERATOR_EORI'] ?? null);
+        if (!$envEori) {
+            return $payload;
+        }
+
+        if (!isset($payload['statement']) || !is_array($payload['statement'])) {
+            return $payload;
+        }
+
+        if (!isset($payload['statement']['operator']) || !is_array($payload['statement']['operator'])) {
+            $payload['statement']['operator'] = [];
+        }
+
+        if (!isset($payload['statement']['operator']['referenceNumber']) || !is_array($payload['statement']['operator']['referenceNumber'])) {
+            $payload['statement']['operator']['referenceNumber'] = [];
+        }
+
+        $payload['statement']['operator']['referenceNumber']['identifierType']  = 'eori';
+        $payload['statement']['operator']['referenceNumber']['identifierValue'] = $envEori;
+
+        return $payload;
+    }
+
     public function testEchoOnline(): void
     {
         $fixtures = $this->loadFixturesOrSkip();
@@ -133,7 +165,13 @@ final class DemoTest extends TestCase
         $client   = $this->makeClientOrSkip();
 
         /** @var array{operatorType: string, statement: StatementArray} $payload */
-        $payload = $this->getPayloadOrSkip($fixtures, 'submission', 'submitDds');
+        $payload = $this->applyOperatorEoriFromEnv(
+            $this->getPayloadOrSkip($fixtures, 'submission', 'submitDds')
+        );
+
+        if (($payload['statement']['operator']['referenceNumber']['identifierValue'] ?? null) === self::PLACEHOLDER_OPERATOR_EORI) {
+            $this->markTestSkipped('Set EUDR_OPERATOR_EORI env variable to your operator EORI to run submission tests.');
+        }
 
         $dto = $this->serializer->fromArray($payload, SubmitDdsRequest::class);
 
@@ -151,7 +189,13 @@ final class DemoTest extends TestCase
         $client   = $this->makeClientOrSkip();
 
         /** @var array{ddsIdentifier: string, statement: StatementArray} $payload */
-        $payload = $this->getPayloadOrSkip($fixtures, 'submission', 'amendDds');
+        $payload = $this->applyOperatorEoriFromEnv(
+            $this->getPayloadOrSkip($fixtures, 'submission', 'amendDds')
+        );
+
+        if (($payload['statement']['operator']['referenceNumber']['identifierValue'] ?? null) === self::PLACEHOLDER_OPERATOR_EORI) {
+            $this->markTestSkipped('Set EUDR_OPERATOR_EORI env variable to your operator EORI to run submission tests.');
+        }
         $dto     = $this->serializer->fromArray($payload, AmendDdsRequest::class);
 
         $resp = $client->getClient(ModeEnum::SUBMISSION)->amendDds($dto);
