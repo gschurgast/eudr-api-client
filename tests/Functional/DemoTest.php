@@ -151,8 +151,11 @@ final class DemoTest extends TestCase
         $client   = $this->makeClientOrSkip();
 
         /** @var array{ddsIdentifier: string, statement: StatementArray} $payload */
-        $payload = $this->getPayloadOrSkip($fixtures, 'submission', 'amendDds');
-        $dto     = $this->serializer->fromArray($payload, AmendDdsRequest::class);
+        $payload                                         = $this->getPayloadOrSkip($fixtures, 'submission', 'amendDds');
+        $payload['statement']['internalReferenceNumber'] = 'GSTEST' . date('YmdHis');
+        $payload['statement']['comment']                 = 'Amended by demo test at ' . date('Y-m-d H:i:s');
+
+        $dto = $this->serializer->fromArray($payload, AmendDdsRequest::class);
 
         $resp = $client->getClient(ModeEnum::SUBMISSION)->amendDds($dto);
 
@@ -234,15 +237,6 @@ final class DemoTest extends TestCase
 
     public function testGetReferencedDdsOnline(): void
     {
-        /*$fixtures = $this->loadFixturesOrSkip();
-        //$client   = $this->makeClientOrSkip();
-
-         @var array{referenceNumber: string, referenceDdsVerificationNumber: string} $payload
-        //$payload = $this->getPayloadOrSkip($fixtures, 'retrieval', 'getReferencedDds');
-        //$dto = DdsWsdlDtoFactory::getReferencedDds($payload);
-        //$resp    = $client->getClient(ModeEnum::RETRIEVAL)->getStatementByIdentifiers($dto);
-
-        //$this->assertNotNull($dto);
-        //$this->markTestSkipped('No use case to call getReferencedDds online; DTO building validated.'); */
+        $this->markTestSkipped('Not implemented yet');
     }
 }

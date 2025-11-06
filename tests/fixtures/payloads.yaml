@@ -4,9 +4,9 @@ echo:
 
 submission:
   submitDds:
-    operatorType: "TRADER"
+    operatorType: "OPERATOR"
     statement:
-      internalReferenceNumber: "DLE20/362"
+      internalReferenceNumber: "GSTEST"
       activityType: "IMPORT"
       countryOfActivity: 'FR'
       borderCrossCountry: 'DE'
@@ -15,8 +15,8 @@ submission:
         - descriptors:
             descriptionOfGoods: "Test wood products"
             goodsMeasure:
-              netWeight: 5
               volume: 4
+              netWeight: 5
           hsHeading: "4401"
           speciesInfo:
             - scientificName: "Fagus silvatica"
@@ -41,18 +41,11 @@ submission:
                       godina: 2016
                       povrsina: 31.24
                       oznaka: "42 a"
-      operator:
-        nameAndAddress:
-          name: "Vente-unique.com"
-          country: "FR"
-          address: "9 RUE JACQUARD 93310 LE PRE SAINT GERVAIS"
-        email: "info@vente-unique.com"
-        phone: "01 23 45 67 89"
       geoLocationConfidential: false
   amendDds:
-    ddsIdentifier: "ec038b3c-bb2b-4965-8341-3765213af912"
+    ddsIdentifier: "7ba034e0-23d2-4fb8-9803-c5af67d2adde"
     statement:
-      internalReferenceNumber: "DLE20/362"
+      internalReferenceNumber: "GREGORY"
       activityType: "IMPORT"
       countryOfActivity: 'FR'
       borderCrossCountry: 'DE'
@@ -87,13 +80,6 @@ submission:
                       godina: 2016
                       povrsina: 31.24
                       oznaka: "42 a"
-      operator:
-        nameAndAddress:
-          name: "Vente-unique.com"
-          country: "FR"
-          address: "9 BIS RUE JACQUARD 93310 LE PRE SAINT GERVAIS"
-        email: "info@vente-unique.com"
-        phone: "01 23 45 67 89"
       geoLocationConfidential: false
   retractDds:
     ddsIdentifier: "9f0ebccd-5fc0-4321-b93a-c732efda7a46"
@@ -101,12 +87,12 @@ submission:
 
 retrieval:
   getDdsInfo:
-    identifier: "ec038b3c-bb2b-4965-8341-3765213af912"
+    identifier: "7ba034e0-23d2-4fb8-9803-c5af67d2adde"
   getDdsInfoByInternalReferenceNumber:
     identifier: "DLE20/362"
   getStatementByIdentifiers:
-    referenceNumber: "25FRQHDA231473"
-    verificationNumber: "4LB8MMCR"
+    referenceNumber: "25FRF1L0236234"
+    verificationNumber: "ZVWWVP9I"
   getReferencedDds:
     referenceNumber: "25FRQHDA231473"
     referenceDdsVerificationNumber: "4LB8MMCR"
