@@ -152,7 +152,7 @@ final class DemoTest extends TestCase
 
         /** @var array{ddsIdentifier: string, statement: StatementArray} $payload */
         $payload                                         = $this->getPayloadOrSkip($fixtures, 'submission', 'amendDds');
-        $payload['statement']['internalReferenceNumber'] = 'GSTEST' . date('YmdHis');
+        $payload['statement']['internalReferenceNumber'] = 'TEST' . date('YmdHis');
         $payload['statement']['comment']                 = 'Amended by demo test at ' . date('Y-m-d H:i:s');
 
         $dto = $this->serializer->fromArray($payload, AmendDdsRequest::class);

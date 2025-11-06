@@ -13,6 +13,9 @@ class EudrClient
 
     protected EnvironmentEnum $environment = EnvironmentEnum::ACCEPTANCE;
 
+    /** @var array<string, BaseSoapService> */
+    private array $clients = [];
+
     public function __construct(
         string $username,
         string $password,
@@ -25,16 +28,20 @@ class EudrClient
 
     public function getClient(ModeEnum $mode): BaseSoapService
     {
-        $client = match ($mode) {
-            ModeEnum::ECHO       => new EudrEchoClient(),
-            ModeEnum::SUBMISSION => new EudrSubmissionClient(),
-            ModeEnum::RETRIEVAL  => new EudrRetrievalClient(),
-        };
+        if (!isset($this->clients[$mode->value])) {
+            $client = match ($mode) {
+                ModeEnum::ECHO       => new EudrEchoClient(),
+                ModeEnum::SUBMISSION => new EudrSubmissionClient(),
+                ModeEnum::RETRIEVAL  => new EudrRetrievalClient(),
+            };
 
-        $client->setEnvironment($this->environment);
-        $client->setUsername($this->username);
-        $client->setPassword($this->password);
+            $client->setEnvironment($this->environment);
+            $client->setUsername($this->username);
+            $client->setPassword($this->password);
 
-        return $client;
+            $this->clients[$mode->value] = $client;
+        }
+
+        return $this->clients[$mode->value];
     }
 }

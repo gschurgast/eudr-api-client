@@ -6,7 +6,7 @@ submission:
   submitDds:
     operatorType: "OPERATOR"
     statement:
-      internalReferenceNumber: "GSTEST"
+      internalReferenceNumber: "TEST"
       activityType: "IMPORT"
       countryOfActivity: 'FR'
       borderCrossCountry: 'DE'

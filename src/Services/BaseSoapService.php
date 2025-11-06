@@ -34,9 +34,13 @@ abstract class BaseSoapService
 
     protected EnvironmentEnum $environment = EnvironmentEnum::ACCEPTANCE;
 
+    /** @var \SoapClient|null Cached SOAP client for reuse between calls. */
+    private ?\SoapClient $soapClient = null;
+
     public function setUsername(string $username): static
     {
         $this->username = $username;
+        $this->resetSoapClient();
 
         return $this;
     }
@@ -44,6 +48,7 @@ abstract class BaseSoapService
     public function setPassword(string $password): static
     {
         $this->password = $password;
+        $this->resetSoapClient();
 
         return $this;
     }
@@ -51,12 +56,17 @@ abstract class BaseSoapService
     public function setEnvironment(EnvironmentEnum $environment): static
     {
         $this->environment = $environment;
+        $this->resetSoapClient();
 
         return $this;
     }
 
     public function buildSoapClient(): \SoapClient
     {
+        if ($this->soapClient instanceof \SoapClient) {
+            return $this->soapClient;
+        }
+
         if ($this->getMode() === ModeEnum::ECHO && $this->environment !== EnvironmentEnum::ACCEPTANCE) {
             throw new \LogicException('This service is not allowed on PRODUCTION environment.');
         }
@@ -89,7 +99,9 @@ abstract class BaseSoapService
         $wsHeader = $this->createHeader();
         $client->__setSoapHeaders($wsHeader);
 
-        return $client;
+        $this->soapClient = $client;
+
+        return $this->soapClient;
     }
 
     /**
@@ -139,6 +151,11 @@ abstract class BaseSoapService
             new \SoapVar($fullXmlHeader, \XSD_ANYXML),
             true
         );
+    }
+
+    private function resetSoapClient(): void
+    {
+        $this->soapClient = null;
     }
 
     abstract protected function getMode(): ModeEnum;
