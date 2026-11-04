@@ -55,6 +55,13 @@ class GeoJsonHandler implements SubscribingHandlerInterface
         if (!\is_array($data)) {
             return $data;
         }
+
+        // GeoJSON requires "properties" to be an object: json_encode() would turn an empty one into [], which the API rejects.
+        foreach (\is_array($data['features'] ?? null) ? $data['features'] : [] as $i => $feature) {
+            if (\is_array($feature)) {
+                $data['features'][$i]['properties'] = (object) ($feature['properties'] ?? []);
+            }
+        }
         $res = json_encode($data, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
         Assert::string($res);
 

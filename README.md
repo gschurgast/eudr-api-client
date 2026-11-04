@@ -8,15 +8,12 @@ for consistent array<->object transformations instead of ad‑hoc toArray/fromSo
 
 - Services (src/Services):
     - EudrEchoClient
-    - EudrSubmissionClient
-    - EudrRetrievalClient
     - EudrDueDiligenceStatementClient (EUDRDueDiligenceStatementServiceV4)
     - EudrClient facade to access the right service by ModeEnum
-- Request/Response DTOs (src/Dto) with JMS Serializer attributes
-    - Requests: SubmitDdsRequest, AmendDdsRequest, GetDdsInfoRequest, GetStatementByIdentifiersRequest, GetReferenceDdsRequest, etc.
-    - Responses: TestEchoResponse, SubmitDdsResponse, AmendDdsResponse, RetractDdsResponse, GetDdsInfoResponse, GetStatementByIdentifiersResponse, GetReferenceDdsResponse
-    - Typed sub-objects in src/Dto/Type (StatementType, CommodityType, OperatorType, StatusType, ...)
+- Request/Response DTOs with JMS Serializer attributes
+    - Echo: TestEchoRequest, TestEchoResponse (src/Dto)
     - V4 requests and responses in src/Dto/V4 (SubmitDdsRequest, AmendDdsRequest, WithdrawDdsRequest, GetDdsRequest, GetDdsByInternalReferenceRequest, ...)
+    - Shared sub-objects in src/Dto/Type (ProducerType, GeometryGeojsonType, SpeciesInfoType, DescriptorsType, ...)
 - Functional tests using PHPUnit: tests/Functional/DemoTest.php
 
 ## Requirements
@@ -59,80 +56,13 @@ $client = new EudrClient(getenv('EUDR_USERNAME'), getenv('EUDR_PASSWORD'), Envir
 
 ```
 $echoReq = new TestEchoRequest();
-$echoReq->query = "My test query"
+$echoReq->query = "My test query";
 $testEchoResponse = $client->getClient(ModeEnum::ECHO)->testEcho($echoReq);
-```
-
-### Submit
-
-#### Submit DDS Request
-
-```
-$submitReq = new SubmitDdsRequest();
-$submitReq->operatorType = OperatorTypeEnum::OPERATOR;
-$submitReq->statement = new StatementType();
-...
-$submitDdsResponse = $client->getClient(ModeEnum::SUBMISSION)->submitDds($submitReq);
-```
-
-#### Amend DDS Request
-
-```
-$amendReq = new AmendDdsRequest();
-$amendReq->ddsIdentifier = {{<ddsIdentifier>}};
-$amendReq->statement = new StatementType();
-...
-$amendDdsResponse = $client->getClient(ModeEnum::SUBMISSION)->amendDds($amendReq);
-```
-
-#### Retract DDS Request
-
-```
-$retractReq = new AmendDdsRequest();
-$retractReq->ddsIdentifier = {{<ddsIdentifier>}};
-$retractReq->reason = "Reason of retractation";
-$retractDdsResponse = $client->getClient(ModeEnum::SUBMISSION)->retractDds($retractReq);
-```
-
-### Retrieval
-
-#### Get DDS Info Request
-
-```
-$getDDSInfoReq = new GetDdsInfoRequest
-$getDDSInfoReq->identifier = {{<ddsIdentifier>}};
-$getDDSInfoResponse = $client->getClient(ModeEnum::RETRIEVAL)->getDdsInfo($getDDSInfoReq);
-```
-
-#### Get DDS Info by Internal Reference Number
-
-```
-$getDDSInfoByInternalRefReq = new GetDdsInfoByInternalReferenceNumberRequest
-$getDDSInfoByInternalRefReq->identifier = {{<my_reference_number>}};
-$getDDSInfoByInternalRefResponse = $client->getClient(ModeEnum::RETRIEVAL)->getDdsInfoByInternalReferenceNumber($getDDSInfoReq);
-```
-
-##### Get Statement by DDS Identifier
-
-```
-$getStatementByIdentifierReq = new GetStatementByIdentifiersRequest
-$getStatementByIdentifierReq->referenceNumber = {{<ddsReferenceNumber>}};
-$getStatementByIdentifierReq->verificationNumber = {{<ddsVerificationNumber>}};
-$getStatementByIdentifierResponse = $client->getClient(ModeEnum::RETRIEVAL)->getStatementByIdentifiers($getDDSInfoReq);
-```
-
-#### Get Reference DDS (No test has been performed on this method)
-
-```
-$getReferenceDDSReq = new GetReferenceDdsRequest
-$getReferenceDDSReq->referenceNumber = {{<ddsReferenceNumber>}};
-$getReferenceDDSReq->referenceDdsVerificationNumber = {{<ddsVerificationNumber>}};
-$getReferenceDDSResponse = $client->getClient(ModeEnum::RETRIEVAL)->getReferencedDds($getDDSInfoReq);
 ```
 
 ### Due Diligence Statement V4
 
-The V1/V2 Submission and Retrieval services will be decommissioned. New integrations use `ModeEnum::DUE_DILIGENCE_STATEMENT_V4`.
+The V2 Submission and Retrieval services are discontinued on acceptance and are no longer supported by this client. Use `ModeEnum::DUE_DILIGENCE_STATEMENT_V4`.
 Only the `OPERATOR` role is supported. `getDdsByIdentifiers` is not exposed: the V4 schema states that it always returns `NotFoundException`.
 
 ```

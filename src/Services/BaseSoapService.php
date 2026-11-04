@@ -13,22 +13,16 @@ use Webmozart\Assert\Assert;
  * Base class for EUDR SOAP clients.
  *
  * These method annotations document the operations implemented by concrete
- * clients (EudrEchoClient, EudrSubmissionClient, EudrRetrievalClient,
- * EudrDueDiligenceStatementClient) so that static analysers (e.g. PHPStan)
- * can understand dynamic calls like $client->$op($env, $dto) when $client is
- * typed as BaseSoapService.
+ * clients (EudrEchoClient, EudrDueDiligenceStatementClient) so that static
+ * analysers (e.g. PHPStan) can understand dynamic calls like
+ * $client->$op($env, $dto) when $client is typed as BaseSoapService.
  *
  * @method mixed testEcho(\src\Dto\TestEchoRequest $request)
- * @method mixed submitDds(\src\Dto\SubmitDdsRequest|\src\Dto\V4\SubmitDdsRequest $request)
- * @method mixed amendDds(\src\Dto\AmendDdsRequest|\src\Dto\V4\AmendDdsRequest $request)
- * @method mixed retractDds(\src\Dto\RetractDdsRequest $request)
+ * @method mixed submitDds(\src\Dto\V4\SubmitDdsRequest $request)
+ * @method mixed amendDds(\src\Dto\V4\AmendDdsRequest $request)
  * @method mixed withdrawDds(\src\Dto\V4\WithdrawDdsRequest $request)
  * @method mixed getDds(\src\Dto\V4\GetDdsRequest $request)
  * @method mixed getDdsByInternalReference(\src\Dto\V4\GetDdsByInternalReferenceRequest $request)
- * @method mixed getDdsInfo(\src\Dto\GetDdsInfoRequest $request)
- * @method mixed getDdsInfoByInternalReferenceNumber(\src\Dto\GetDdsInfoByInternalReferenceNumberRequest $request)
- * @method mixed getStatementByIdentifiers(\src\Dto\GetStatementByIdentifiersRequest $request)
- * @method mixed getReferencedDds(\src\Dto\GetReferenceDdsRequest $request)
  */
 abstract class BaseSoapService
 {

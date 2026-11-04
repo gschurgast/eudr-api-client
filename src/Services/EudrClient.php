@@ -32,8 +32,6 @@ class EudrClient
         if (!isset($this->clients[$mode->value])) {
             $client = match ($mode) {
                 ModeEnum::ECHO                       => new EudrEchoClient(),
-                ModeEnum::SUBMISSION                 => new EudrSubmissionClient(),
-                ModeEnum::RETRIEVAL                  => new EudrRetrievalClient(),
                 ModeEnum::DUE_DILIGENCE_STATEMENT_V4 => new EudrDueDiligenceStatementClient(),
             };
 
