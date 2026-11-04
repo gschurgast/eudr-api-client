@@ -37,10 +37,11 @@ composer run dev:phpcsfixer
 - **EudrEchoClient** - Test/echo operations (ACCEPTANCE environment only)
 - **EudrSubmissionClient** - Submit, amend, retract DDS statements
 - **EudrRetrievalClient** - Query DDS info, statements by identifiers
+- **EudrDueDiligenceStatementClient** - V4 service: submit, amend, withdraw DDS, get DDS overview by UUID or internal reference
 
 ### Enums (src/Enum/)
-- **EnvironmentEnum** - ACCEPTANCE vs PRODUCTION (different base URLs, SSL settings, WebServiceClientId)
-- **ModeEnum** - ECHO, SUBMISSION, RETRIEVAL (maps to WSDL endpoints)
+- **EnvironmentEnum** - ACCEPTANCE vs PRODUCTION (different base URLs, WebServiceClientId)
+- **ModeEnum** - ECHO, SUBMISSION, RETRIEVAL, DUE_DILIGENCE_STATEMENT_V4 (maps to WSDL endpoints)
 - **OperatorTypeEnum**, **ActivityTypeEnum**, **GeometryTypeEnum**, **WoodHeadingEnum** - Domain-specific enums
 
 ### DTOs (src/Dto/)
@@ -59,7 +60,10 @@ composer run dev:phpcsfixer
 
 ## Key Patterns
 
-- SoapClient instances are cached per service to skip WSDL fetch on subsequent calls
+- SoapClient instances are cached per service to skip WSDL fetch on subsequent calls; the WS-Security header is rebuilt on every call
+- In WSDL mode, SoapClient orders elements from the schema, not from DTO property order
+- V4 DTOs live in `src/Dto/V4`. `DdsCommodityType` takes any HS code as a string; it reuses the V2 descriptor, species and producer types from `src/Dto/Type`
+- `BodyIdentity` is declared only by the V4 WSDL, so only `EudrDueDiligenceStatementClient` sends it
 - WS-Security headers are generated using `robrichards/wse-php` with PasswordDigest authentication
 - EudrEchoClient throws `LogicException` if used in PRODUCTION environment
 - Response DTOs always provide a static `fromSoap()` method for hydration from raw SOAP responses

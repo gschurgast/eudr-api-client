@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Functional;
 
 use JMS\Serializer\Serializer;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use src\Dto\AmendDdsRequest;
 use src\Dto\GetDdsInfoByInternalReferenceNumberRequest;
@@ -14,6 +15,9 @@ use src\Dto\GetStatementByIdentifiersRequest;
 use src\Dto\RetractDdsRequest;
 use src\Dto\SubmitDdsRequest;
 use src\Dto\TestEchoRequest;
+use src\Dto\V4\GetDdsRequest;
+use src\Dto\V4\SubmitDdsRequest as SubmitDdsRequestV4;
+use src\Dto\V4\WithdrawDdsRequest;
 use src\Enum\EnvironmentEnum;
 use src\Enum\ModeEnum;
 use src\Serializer\SerializerFactory;
@@ -91,7 +95,9 @@ final class DemoTest extends TestCase
             $this->markTestSkipped('EUDR_USERNAME and/or EUDR_PASSWORD are not set. Define them in .env or environment to run online functional calls.');
         }
 
-        return new EudrClient($username, $password, $env);
+        $operatorAccessIdentifier = getenv('EUDR_OPERATOR_ACCESS_IDENTIFIER') ?: ($_ENV['EUDR_OPERATOR_ACCESS_IDENTIFIER'] ?? null);
+
+        return new EudrClient($username, $password, $env, $operatorAccessIdentifier ?: null);
     }
 
     /**
@@ -238,5 +244,52 @@ final class DemoTest extends TestCase
     public function testGetReferencedDdsOnline(): void
     {
         $this->markTestSkipped('Not implemented yet');
+    }
+
+    /**
+     * @return string uuid of the submitted DDS
+     */
+    public function testSubmitDdsV4Online(): string
+    {
+        $fixtures = $this->loadFixturesOrSkip();
+        $client   = $this->makeClientOrSkip();
+
+        $payload                                 = $this->getPayloadOrSkip($fixtures, 'dueDiligenceStatementV4', 'submitDds');
+        $dto                                     = $this->serializer->fromArray($payload, SubmitDdsRequestV4::class);
+        $dto->statement->internalReferenceNumber = 'TEST-V4-' . date('YmdHis');
+
+        $resp = $client->getClient(ModeEnum::DUE_DILIGENCE_STATEMENT_V4)->submitDds($dto);
+
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $resp->uuid);
+
+        return $resp->uuid;
+    }
+
+    #[Depends('testSubmitDdsV4Online')]
+    public function testGetDdsV4Online(string $uuid): void
+    {
+        $client = $this->makeClientOrSkip();
+
+        $dto           = new GetDdsRequest();
+        $dto->uuidList = [$uuid];
+        $resp          = $client->getClient(ModeEnum::DUE_DILIGENCE_STATEMENT_V4)->getDds($dto);
+
+        $this->assertCount(1, $resp->ddsOverviewList);
+        $this->assertSame($uuid, $resp->ddsOverviewList[0]->uuid);
+        $this->assertIsString($resp->ddsOverviewList[0]->status);
+    }
+
+    #[Depends('testSubmitDdsV4Online')]
+    #[Depends('testGetDdsV4Online')]
+    public function testWithdrawDdsV4Online(string $uuid): void
+    {
+        $client = $this->makeClientOrSkip();
+
+        $dto       = new WithdrawDdsRequest();
+        $dto->uuid = $uuid;
+        $resp      = $client->getClient(ModeEnum::DUE_DILIGENCE_STATEMENT_V4)->withdrawDds($dto);
+
+        $this->assertSame($uuid, $resp->uuid);
+        $this->assertSame('WITHDRAWN', $resp->status);
     }
 }

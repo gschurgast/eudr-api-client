@@ -46,17 +46,4 @@ enum EnvironmentEnum: string
             self::PRODUCTION => 'eudr-repository',
         };
     }
-
-    /**
-     * Default SSL verification behavior per environment.
-     * - acceptance -> false (for dev/testing)
-     * - production -> true (strict).
-     */
-    public function getSslVerify(): bool
-    {
-        return match ($this) {
-            self::ACCEPTANCE => false,
-            self::PRODUCTION => true,
-        };
-    }
 }

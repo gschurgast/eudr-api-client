@@ -96,3 +96,39 @@ retrieval:
   getReferencedDds:
     referenceNumber: "25FRQHDA231473"
     referenceDdsVerificationNumber: "4LB8MMCR"
+
+dueDiligenceStatementV4:
+  submitDds:
+    operatorRole: "OPERATOR"
+    statement:
+      internalReferenceNumber: "TEST-V4"
+      activityType: "IMPORT"
+      countryOfActivity: 'FR'
+      borderCrossCountry: 'FR'
+      comment: "Minimal V4 test scenario"
+      commodities:
+        - descriptors:
+            descriptionOfGoods: "Test wood products"
+            goodsMeasure:
+              netWeight: 5
+          hsHeading: "4401"
+          speciesInfo:
+            - scientificName: "Fagus silvatica"
+              commonName: "Beech"
+          producers:
+            - country: "HR"
+              name: "GreenWood Solutions Ltd."
+              geometryGeojson:
+                type: FeatureCollection
+                features:
+                  - type: Feature
+                    geometry:
+                      type: Polygon
+                      coordinates:
+                        - - [ 16.186412, 45.524412 ]
+                          - [ 16.187412, 45.524412 ]
+                          - [ 16.187412, 45.534412 ]
+                          - [ 16.186412, 45.534412 ]
+                          - [ 16.186412, 45.524412 ]
+                    properties: {}
+      geoLocationConfidential: false
