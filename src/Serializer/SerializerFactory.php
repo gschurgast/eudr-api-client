@@ -24,7 +24,7 @@ final class SerializerFactory
                 )
             );
 
-            $builder->configureHandlers(function ($registry) {
+            $builder->configureHandlers(static function ($registry) {
                 $registry->registerSubscribingHandler(new GeoJsonHandler());
             });
 

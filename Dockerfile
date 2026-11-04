@@ -1,5 +1,5 @@
 # Simple PHP (CLI) image with SOAP extension enabled for this project
-FROM php:8.2-cli
+FROM php:8.5-cli
 
 # Install dependencies and enable SOAP extension
 RUN apt-get update \
@@ -13,7 +13,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer (global)
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 # Set working directory
 WORKDIR /app

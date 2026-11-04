@@ -15,7 +15,7 @@ restart: docker-restart ## Restart the project
 init: docker-build docker-up
 
 docker-build:
-	@$(DOCKER_COMPOSE) build
+	@$(DOCKER_COMPOSE) build --pull
 
 docker-up: ## Start the docker hub in detached mode (no logs)
 	@$(DOCKER_COMPOSE) up --detach

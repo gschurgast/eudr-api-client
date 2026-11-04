@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
@@ -35,7 +33,9 @@ final class WsSecurityHeaderTest extends TestCase
         } catch (\SoapFault) {
         }
 
-        $this->assertSame(1, preg_match('#<wsse:Nonce[^>]*>([^<]+)</wsse:Nonce>#', (string) $client->buildSoapClient()->__getLastRequest(), $matches));
+        if (preg_match('#<wsse:Nonce[^>]*>([^<]+)</wsse:Nonce>#', (string) $client->buildSoapClient()->__getLastRequest(), $matches) !== 1) {
+            $this->fail('No wsse:Nonce in last request');
+        }
 
         return $matches[1];
     }

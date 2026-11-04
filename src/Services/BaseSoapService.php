@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace src\Services;
 
 use RobRichards\WsePhp\WSSESoap;

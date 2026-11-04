@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace src\Dto\V4;
 
 use JMS\Serializer\Annotation\Type;
