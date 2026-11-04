@@ -14,7 +14,11 @@
     },
     "autoload": {
         "psr-4": {
-            "src\\": "src/",
+            "src\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Tests\\": "tests/"
         }
     },
@@ -22,6 +26,7 @@
         "sort-packages": true
     },
     "require-dev": {
+        "ext-libxml": "*",
         "friendsofphp/php-cs-fixer": "^3.89",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.5"
