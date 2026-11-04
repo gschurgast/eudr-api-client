@@ -13,18 +13,16 @@ use Webmozart\Assert\Assert;
  * Base class for EUDR SOAP clients.
  *
  * These method annotations document the operations implemented by concrete
- * clients (EudrEchoClient, EudrSubmissionClient, EudrRetrievalClient) so that
- * static analysers (e.g. PHPStan) can understand dynamic calls like
+ * clients (EudrEchoClient, EudrDueDiligenceStatementClient) so that static
+ * analysers (e.g. PHPStan) can understand dynamic calls like
  * $client->$op($env, $dto) when $client is typed as BaseSoapService.
  *
  * @method mixed testEcho(\src\Dto\TestEchoRequest $request)
- * @method mixed submitDds(\src\Dto\SubmitDdsRequest $request)
- * @method mixed amendDds(\src\Dto\AmendDdsRequest $request)
- * @method mixed retractDds(\src\Dto\RetractDdsRequest $request)
- * @method mixed getDdsInfo(\src\Dto\GetDdsInfoRequest $request)
- * @method mixed getDdsInfoByInternalReferenceNumber(\src\Dto\GetDdsInfoByInternalReferenceNumberRequest $request)
- * @method mixed getStatementByIdentifiers(\src\Dto\GetStatementByIdentifiersRequest $request)
- * @method mixed getReferencedDds(\src\Dto\GetReferenceDdsRequest $request)
+ * @method mixed submitDds(\src\Dto\V4\SubmitDdsRequest $request)
+ * @method mixed amendDds(\src\Dto\V4\AmendDdsRequest $request)
+ * @method mixed withdrawDds(\src\Dto\V4\WithdrawDdsRequest $request)
+ * @method mixed getDds(\src\Dto\V4\GetDdsRequest $request)
+ * @method mixed getDdsByInternalReference(\src\Dto\V4\GetDdsByInternalReferenceRequest $request)
  */
 abstract class BaseSoapService
 {
@@ -40,7 +38,6 @@ abstract class BaseSoapService
     public function setUsername(string $username): static
     {
         $this->username = $username;
-        $this->resetSoapClient();
 
         return $this;
     }
@@ -48,7 +45,6 @@ abstract class BaseSoapService
     public function setPassword(string $password): static
     {
         $this->password = $password;
-        $this->resetSoapClient();
 
         return $this;
     }
@@ -61,45 +57,30 @@ abstract class BaseSoapService
         return $this;
     }
 
+    /**
+     * Returns the cached client with a new WS-Security header: the nonce is single-use and the timestamp expires.
+     */
     public function buildSoapClient(): \SoapClient
     {
-        if ($this->soapClient instanceof \SoapClient) {
-            return $this->soapClient;
-        }
+        if (!$this->soapClient instanceof \SoapClient) {
+            if ($this->getMode() === ModeEnum::ECHO && $this->environment !== EnvironmentEnum::ACCEPTANCE) {
+                throw new \LogicException('This service is not allowed on PRODUCTION environment.');
+            }
 
-        if ($this->getMode() === ModeEnum::ECHO && $this->environment !== EnvironmentEnum::ACCEPTANCE) {
-            throw new \LogicException('This service is not allowed on PRODUCTION environment.');
-        }
-
-        $wsdl = $this->environment->getUrl($this->getMode()->geturl());
-
-        $defaults = [
-            'trace'      => true,
-            'exceptions' => true,
-            'cache_wsdl' => \WSDL_CACHE_NONE,
-            'features'   => \SOAP_SINGLE_ELEMENT_ARRAYS,
-        ];
-
-        if (!$this->environment->getSslVerify()) {
-            $ctx = stream_context_create([
-                'ssl' => [
-                    'verify_peer'       => false,
-                    'verify_peer_name'  => false,
-                    'allow_self_signed' => true,
-                ],
-                'http' => [
-                    'user_agent' => 'EUDR-PHP-SoapClient/1.0 (https://github.com/gschurgast/eudr-api-client)',
-                ],
+            $this->soapClient = new \SoapClient($this->environment->getUrl($this->getMode()->geturl()), [
+                'trace'          => true,
+                'exceptions'     => true,
+                'cache_wsdl'     => \WSDL_CACHE_NONE,
+                'features'       => \SOAP_SINGLE_ELEMENT_ARRAYS,
+                'stream_context' => stream_context_create([
+                    'http' => [
+                        'user_agent' => 'EUDR-PHP-SoapClient/1.0 (https://github.com/gschurgast/eudr-api-client)',
+                    ],
+                ]),
             ]);
-            $defaults['stream_context'] = $ctx;
         }
 
-        $client = new \SoapClient($wsdl, $defaults);
-
-        $wsHeader = $this->createHeader();
-        $client->__setSoapHeaders($wsHeader);
-
-        $this->soapClient = $client;
+        $this->soapClient->__setSoapHeaders($this->createHeader());
 
         return $this->soapClient;
     }
@@ -143,7 +124,7 @@ abstract class BaseSoapService
         $xmlClientId = '<v4:WebServiceClientId xmlns:v4="http://ec.europa.eu/sanco/tracesnt/base/v4">'
             . htmlspecialchars($clientId, \ENT_XML1) . '</v4:WebServiceClientId>';
 
-        $fullXmlHeader = $xmlSecurity . $xmlClientId;
+        $fullXmlHeader = $xmlSecurity . $xmlClientId . $this->additionalHeaderXml();
 
         return new \SoapHeader(
             'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
@@ -151,6 +132,14 @@ abstract class BaseSoapService
             new \SoapVar($fullXmlHeader, \XSD_ANYXML),
             true
         );
+    }
+
+    /**
+     * Extra SOAP headers declared by the service WSDL, as raw XML.
+     */
+    protected function additionalHeaderXml(): string
+    {
+        return '';
     }
 
     private function resetSoapClient(): void

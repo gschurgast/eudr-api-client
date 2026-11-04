@@ -6,6 +6,7 @@ services:
     environment:
       - EUDR_USERNAME=${EUDR_USERNAME:-}
       - EUDR_PASSWORD=${EUDR_PASSWORD:-}
+      - EUDR_OPERATOR_ACCESS_IDENTIFIER=${EUDR_OPERATOR_ACCESS_IDENTIFIER:-}
     volumes:
       - ./:/app
     # Default command shows PHP version; override on the CLI for interactive runs

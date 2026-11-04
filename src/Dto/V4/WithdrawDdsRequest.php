@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace src\Dto;
+namespace src\Dto\V4;
 
 use src\Serializer\JmsSerializationTrait;
 
-final class AmendDdsResponse
+class WithdrawDdsRequest
 {
     use JmsSerializationTrait;
 
-    public ?string $status = null;
+    public string $uuid;
 }

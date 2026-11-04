@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
-namespace src\Dto;
+namespace src\Dto\V4;
 
 use src\Serializer\JmsSerializationTrait;
 
-final class GetReferenceDdsResponse
+/**
+ * Response of amendDds and withdrawDds.
+ */
+final class DdsModificationResponse
 {
     use JmsSerializationTrait;
 
-    public ?string $referenceNumber = null;
+    public string $uuid = '';
 
     public ?string $status = null;
 }

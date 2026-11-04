@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace src\Dto;
+namespace src\Dto\V4;
 
 use src\Serializer\JmsSerializationTrait;
 
-final class RetractDdsResponse
+class GetDdsByInternalReferenceRequest
 {
     use JmsSerializationTrait;
 
-    public ?string $status = null;
+    public string $internalReference;
 }

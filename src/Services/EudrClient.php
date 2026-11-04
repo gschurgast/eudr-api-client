@@ -20,6 +20,7 @@ class EudrClient
         string $username,
         string $password,
         EnvironmentEnum $environment,
+        protected ?string $operatorAccessIdentifier = null,
     ) {
         $this->username    = $username;
         $this->password    = $password;
@@ -30,14 +31,16 @@ class EudrClient
     {
         if (!isset($this->clients[$mode->value])) {
             $client = match ($mode) {
-                ModeEnum::ECHO       => new EudrEchoClient(),
-                ModeEnum::SUBMISSION => new EudrSubmissionClient(),
-                ModeEnum::RETRIEVAL  => new EudrRetrievalClient(),
+                ModeEnum::ECHO                       => new EudrEchoClient(),
+                ModeEnum::DUE_DILIGENCE_STATEMENT_V4 => new EudrDueDiligenceStatementClient(),
             };
 
             $client->setEnvironment($this->environment);
             $client->setUsername($this->username);
             $client->setPassword($this->password);
+            if ($client instanceof EudrDueDiligenceStatementClient) {
+                $client->setOperatorAccessIdentifier($this->operatorAccessIdentifier);
+            }
 
             $this->clients[$mode->value] = $client;
         }

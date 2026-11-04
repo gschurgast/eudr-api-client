@@ -5,24 +5,18 @@ declare(strict_types=1);
 namespace Tests\Functional;
 
 use JMS\Serializer\Serializer;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
-use src\Dto\AmendDdsRequest;
-use src\Dto\GetDdsInfoByInternalReferenceNumberRequest;
-use src\Dto\GetDdsInfoRequest;
-use src\Dto\GetDdsInfoResponse;
-use src\Dto\GetStatementByIdentifiersRequest;
-use src\Dto\RetractDdsRequest;
-use src\Dto\SubmitDdsRequest;
 use src\Dto\TestEchoRequest;
+use src\Dto\V4\GetDdsRequest;
+use src\Dto\V4\SubmitDdsRequest as SubmitDdsRequestV4;
+use src\Dto\V4\WithdrawDdsRequest;
 use src\Enum\EnvironmentEnum;
 use src\Enum\ModeEnum;
 use src\Serializer\SerializerFactory;
 use src\Services\EudrClient;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * @phpstan-import-type StatementArray from \src\Dto\Type\StatementType
- */
 final class DemoTest extends TestCase
 {
     private Serializer $serializer;
@@ -91,7 +85,9 @@ final class DemoTest extends TestCase
             $this->markTestSkipped('EUDR_USERNAME and/or EUDR_PASSWORD are not set. Define them in .env or environment to run online functional calls.');
         }
 
-        return new EudrClient($username, $password, $env);
+        $operatorAccessIdentifier = getenv('EUDR_OPERATOR_ACCESS_IDENTIFIER') ?: ($_ENV['EUDR_OPERATOR_ACCESS_IDENTIFIER'] ?? null);
+
+        return new EudrClient($username, $password, $env, $operatorAccessIdentifier ?: null);
     }
 
     /**
@@ -125,118 +121,49 @@ final class DemoTest extends TestCase
     }
 
     /**
-     * @return string ddsIdentifier
+     * @return string uuid of the submitted DDS
      */
-    public function testSubmitDdsOnline(): string
+    public function testSubmitDdsV4Online(): string
     {
         $fixtures = $this->loadFixturesOrSkip();
         $client   = $this->makeClientOrSkip();
 
-        /** @var array{operatorType: string, statement: StatementArray} $payload */
-        $payload = $this->getPayloadOrSkip($fixtures, 'submission', 'submitDds');
+        $payload                                 = $this->getPayloadOrSkip($fixtures, 'dueDiligenceStatementV4', 'submitDds');
+        $dto                                     = $this->serializer->fromArray($payload, SubmitDdsRequestV4::class);
+        $dto->statement->internalReferenceNumber = 'TEST-V4-' . date('YmdHis');
 
-        $dto = $this->serializer->fromArray($payload, SubmitDdsRequest::class);
+        $resp = $client->getClient(ModeEnum::DUE_DILIGENCE_STATEMENT_V4)->submitDds($dto);
 
-        $resp = $client->getClient(ModeEnum::SUBMISSION)->submitDds($dto);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $resp->uuid);
 
-        $this->assertIsString($resp->ddsIdentifier, 'Le champ ddsIdentifier doit être une chaîne de caractères');
-        $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $resp->ddsIdentifier, 'Le champ ddsIdentifier ne correspond pas au format UUID attendu (ex: 0542e3a8-7b89-4866-b00a-d8766b9ec74a)');
-
-        return $resp->ddsIdentifier;
+        return $resp->uuid;
     }
 
-    public function testAmendDdsOnline(): void
+    #[Depends('testSubmitDdsV4Online')]
+    public function testGetDdsV4Online(string $uuid): void
     {
-        $fixtures = $this->loadFixturesOrSkip();
-        $client   = $this->makeClientOrSkip();
+        $client = $this->makeClientOrSkip();
 
-        /** @var array{ddsIdentifier: string, statement: StatementArray} $payload */
-        $payload                                         = $this->getPayloadOrSkip($fixtures, 'submission', 'amendDds');
-        $payload['statement']['internalReferenceNumber'] = 'TEST' . date('YmdHis');
-        $payload['statement']['comment']                 = 'Amended by demo test at ' . date('Y-m-d H:i:s');
+        $dto           = new GetDdsRequest();
+        $dto->uuidList = [$uuid];
+        $resp          = $client->getClient(ModeEnum::DUE_DILIGENCE_STATEMENT_V4)->getDds($dto);
 
-        $dto = $this->serializer->fromArray($payload, AmendDdsRequest::class);
-
-        $resp = $client->getClient(ModeEnum::SUBMISSION)->amendDds($dto);
-
-        $this->assertIsString($resp->status, 'Le champ status doit être une chaîne de caractères');
-        $this->assertEquals('SC_200_OK', $resp->status, 'Le champ status n\'est pas SC_200_OK');
+        $this->assertCount(1, $resp->ddsOverviewList);
+        $this->assertSame($uuid, $resp->ddsOverviewList[0]->uuid);
+        $this->assertIsString($resp->ddsOverviewList[0]->status);
     }
 
-    /**
-     * @depends testSubmitDdsOnline
-     */
-    public function testRetractDdsOnline(string $ddsIdentifier): void
+    #[Depends('testSubmitDdsV4Online')]
+    #[Depends('testGetDdsV4Online')]
+    public function testWithdrawDdsV4Online(string $uuid): void
     {
-        $fixtures = $this->loadFixturesOrSkip();
-        $client   = $this->makeClientOrSkip();
+        $client = $this->makeClientOrSkip();
 
-        /** @var array{ddsIdentifier: string, reason: string} $payload */
-        $payload                  = $this->getPayloadOrSkip($fixtures, 'submission', 'retractDds');
-        $payload['ddsIdentifier'] = $ddsIdentifier; // override with created identifier from submit
+        $dto       = new WithdrawDdsRequest();
+        $dto->uuid = $uuid;
+        $resp      = $client->getClient(ModeEnum::DUE_DILIGENCE_STATEMENT_V4)->withdrawDds($dto);
 
-        $dto  = $this->serializer->fromArray($payload, RetractDdsRequest::class);
-        $resp = $client->getClient(ModeEnum::SUBMISSION)->retractDds($dto);
-
-        $this->assertIsString($resp->status, 'Le champ status doit être une chaîne de caractères');
-        $this->assertEquals('SC_200_OK', $resp->status, 'Le champ status n\'est pas SC_200_OK');
-    }
-
-    public function testGetDdsInfoOnline(): void
-    {
-        $fixtures = $this->loadFixturesOrSkip();
-        $client   = $this->makeClientOrSkip();
-
-        /** @var array{identifier: string} $payload */
-        $payload = $this->getPayloadOrSkip($fixtures, 'retrieval', 'getDdsInfo');
-        $dto     = $this->serializer->fromArray($payload, GetDdsInfoRequest::class);
-        $resp    = $client->getClient(ModeEnum::RETRIEVAL)->getDdsInfo($dto);
-
-        $this->assertNotNull($resp);
-        $this->assertIsString($resp->identifier, 'Le champ identifier doit être une chaîne de caractères');
-        $this->assertEquals($dto->identifier, $resp->identifier, \sprintf('Le champ identifier n\'est pas %s ', $dto->identifier));
-        $this->assertIsString($resp->referenceNumber, 'Le champ referenceNumber doit être une chaîne de caractères');
-        $this->assertMatchesRegularExpression('/^[0-9A-Z]{14}$/i', $resp->referenceNumber, 'Le champ referenceNumber ne correspond pas au format attendu (14 caractères alphanumériques en majuscules)');
-        $this->assertIsString($resp->verificationNumber, 'Le champ verificationNumber doit être une chaîne de caractères');
-        $this->assertMatchesRegularExpression('/^[0-9A-Z]{8}$/i', $resp->verificationNumber, 'Le champ verificationNumber ne correspond pas au format attendu (8 caractères alphanumériques en majuscules)');
-        $this->assertIsString($resp->status, 'Le champ status doit être une chaîne de caractères');
-        $this->assertIsString($resp->updatedBy, 'Le champ updatedBy doit être une chaîne de caractères');
-    }
-
-    public function testGetDdsInfoByInternalReferenceNumberOnline(): void
-    {
-        $fixtures = $this->loadFixturesOrSkip();
-        $client   = $this->makeClientOrSkip();
-
-        /** @var array{identifier: string} $payload */
-        $payload = $this->getPayloadOrSkip($fixtures, 'retrieval', 'getDdsInfoByInternalReferenceNumber');
-        $dto     = $this->serializer->fromArray($payload, GetDdsInfoByInternalReferenceNumberRequest::class);
-        $resp    = $client->getClient(ModeEnum::RETRIEVAL)->getDdsInfoByInternalReferenceNumber($dto);
-
-        $this->assertIsArray($resp->statementInfo, 'La réponse doit être un tableau de GetDdsInfoResponse');
-        if (\count($resp->statementInfo) > 0) {
-            $this->assertInstanceOf(GetDdsInfoResponse::class, $resp->statementInfo[0]);
-        }
-    }
-
-    public function testGetStatementByIdentifiersOnline(): void
-    {
-        $fixtures = $this->loadFixturesOrSkip();
-        $client   = $this->makeClientOrSkip();
-
-        /** @var array{referenceNumber: string, verificationNumber: string} $payload */
-        $payload = $this->getPayloadOrSkip($fixtures, 'retrieval', 'getStatementByIdentifiers');
-        $dto     = $this->serializer->fromArray($payload, GetStatementByIdentifiersRequest::class);
-        $resp    = $client->getClient(ModeEnum::RETRIEVAL)->getStatementByIdentifiers($dto);
-
-        $this->assertNotNull($resp);
-        $this->assertIsString($resp->referenceNumber, 'Le champ referenceNumber doit être une chaîne de caractères');
-        $this->assertMatchesRegularExpression('/^[0-9A-Z]{14}$/i', $resp->referenceNumber, 'Le champ referenceNumber ne correspond pas au format attendu (14 caractères alphanumériques en majuscules)');
-        $this->assertIsString($resp->activityType->value, 'Le champ activityType doit être une chaîne de caractères');
-    }
-
-    public function testGetReferencedDdsOnline(): void
-    {
-        $this->markTestSkipped('Not implemented yet');
+        $this->assertSame($uuid, $resp->uuid);
+        $this->assertSame('WITHDRAWN', $resp->status);
     }
 }
