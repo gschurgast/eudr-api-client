@@ -8,7 +8,7 @@
         "ext-dom": "*",
         "ext-soap": "*",
         "robrichards/wse-php": "^2.0",
-        "symfony/yaml": "^7.0",
+        "symfony/yaml": "^7.0 || ^8.0",
         "webmozart/assert": "^1.12",
         "jms/serializer": "^3.31"
     },
